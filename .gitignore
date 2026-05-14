@@ -1,0 +1,5 @@
+# .gitignore
+bootiso/
+*.iso
+manifest-iso.json
+cosign.key

@@ -1,0 +1,28 @@
+# disk_config/iso.toml
+
+# 1. Força o uso do BTRFS
+[customizations.filesystem]
+fstype = "btrfs"
+
+# 2. Configura o sistema para baixar atualizações do seu repositório no GitHub
+[customizations.installer.kickstart]
+contents = """
+%post
+bootc switch --mutate-in-place --transport registry ghcr.io/rafayuri/fedora_rynux:latest
+%end
+"""
+
+# 3. Habilita a interface gráfica apenas para seleção de disco (Anaconda)
+[customizations.installer.modules]
+enable = [
+  "org.fedoraproject.Anaconda.Modules.Storage",
+  "org.fedoraproject.Anaconda.Modules.Runtime"
+]
+disable = [
+  "org.fedoraproject.Anaconda.Modules.Network",
+  "org.fedoraproject.Anaconda.Modules.Security",
+  "org.fedoraproject.Anaconda.Modules.Services",
+  "org.fedoraproject.Anaconda.Modules.Users",
+  "org.fedoraproject.Anaconda.Modules.Subscription",
+  "org.fedoraproject.Anaconda.Modules.Timezone"
+]
