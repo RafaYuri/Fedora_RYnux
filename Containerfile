@@ -26,7 +26,7 @@ RUN --mount=type=cache,dst=/var/cache/dnf \
     mesa-vulkan-drivers mesa-va-drivers mesa-libGL \
     fwupd setroubleshoot \
     fira-code-fonts cascadia-code-fonts \
-    cmake ninja-build gdb \
+    cmake ninja-build gdb clang libgomp libomp-devel\
     && dnf remove -y PackageKit \
     && dnf clean all
 
