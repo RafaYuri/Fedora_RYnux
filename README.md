@@ -11,7 +11,8 @@ Seu foco principal é fornecer um ambiente "time-proven" e altamente otimizado p
 * **Arquitetura Atômica:** Baseado no `fedora-bootc`. O núcleo do sistema é imutável (somente-leitura), o que significa que atualizações problemáticas não quebram a máquina.
 * **Gerenciamento de Energia:** Otimizado nativamente para processadores AMD Ryzen (incluindo o motor `tuned` em vez do tradicional *power-profiles-daemon*).
 * **Gráficos e Mídia:** Aceleração de hardware via AMD Radeon nativamente configurada com `mesa-va-drivers` e codecs completos multimídia via RPM Fusion.
-* **Ambiente de Desenvolvimento:** * Compiladores modernos e ferramentas C++ (CMake, Ninja, GDB).
+* **Ambiente de Desenvolvimento:**
+  * Compiladores modernos e ferramentas C++ (CMake, Ninja, GDB).
   * Suporte robusto a contêineres e virtualização (Podman, Docker, Distrobox, QEMU/KVM + Virt-Manager).
   * Windsurf IDE integrado e pronto para uso.
 
