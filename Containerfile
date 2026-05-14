@@ -35,6 +35,13 @@ RUN --mount=type=cache,dst=/var/cache/dnf \
     dnf group install -y development-tools && \
     dnf clean all
 
+# Configurando o repositório e instalando o Brave Browser
+RUN --mount=type=cache,dst=/var/cache/dnf \
+    rpm --import https://brave-browser-rpm-release.s3.brave.com/brave-core.asc && \
+    curl -fsSLo /etc/yum.repos.d/brave-browser.repo https://brave-browser-rpm-release.s3.brave.com/brave-browser.repo && \
+    dnf install -y brave-browser && \
+    dnf clean all
+
 # Instalando repositórios RPM Fusion, codecs multimídia e removendo o repositório
 RUN --mount=type=cache,dst=/var/cache/dnf \
     dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \
