@@ -19,11 +19,11 @@ RUN rpm --import https://windsurf-stable.codeiumdata.com/wVxQEIWkwPUEAGf3/yum/RP
     echo "enabled=1" >> /etc/yum.repos.d/windsurf.repo && \
     echo "autorefresh=1" >> /etc/yum.repos.d/windsurf.repo && \
     echo "gpgcheck=1" >> /etc/yum.repos.d/windsurf.repo && \
-    echo "gpgkey=https://windsurf-stable.codeiumdata.com/wVxQEIWkwPUEAGf3/yum/RPM-GPG-KEY-windsurf" >> /etc/yum.repos.d/windsurf.repo && \
+    echo "gpgkey=https://windsurf-stable.codeiumdata.com/wVxQEIWkwPUEAGf3/yum/RPM-GPG-KEY-windsurf" >> /etc/yum.repos.d/windsurf.repo
 
 # Instala a IDE windsurf
 RUN --mount=type=cache,dst=/var/cache/dnf \
-    dnf install windsurf && \
+    dnf install -y windsurf && \
     dnf clean all
 
 # Copia a pasta de listas de pacotes para dentro da imagem temporariamente
