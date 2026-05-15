@@ -26,26 +26,11 @@ COPY pacotes/ /tmp/pacotes/
 
 # Instala os pacotes a partir das listas .txt
 RUN --mount=type=cache,dst=/var/cache/dnf \
-<<<<<<< HEAD
-    dnf update -y && \
-    dnf install -y kate wireshark fastfetch podman-compose podman-docker \
-    plymouth plymouth-theme-spinner virt-manager qemu qemu-kvm libvirt curl gh git btop ripgrep eza \
-    tesseract-langpack-por tesseract-langpack-eng tesseract-langpack-fra \
-    glibc-langpack-pt \
-    distrobox windsurf procps-ng file \
-    mesa-vulkan-drivers mesa-va-drivers mesa-libGL \
-    fwupd setroubleshoot \
-    fira-code-fonts cascadia-code-fonts \
-    cmake ninja-build gdb clang libgomp libomp-devel\
-    && dnf remove -y PackageKit \
-    && dnf clean all
-=======
     grep -v '^#' /tmp/pacotes/packages_system.txt | tr '\n' ' ' | xargs dnf install -y && \
     grep -v '^#' /tmp/pacotes/packages_dev_cli.txt | tr '\n' ' ' | xargs dnf install -y && \
     grep -v '^#' /tmp/pacotes/packages_apps.txt | tr '\n' ' ' | xargs dnf install -y && \
     dnf remove -y PackageKit && \
     dnf clean all
->>>>>>> 34e83be (Alterações no Containerfile e adição do Chunkah.)
 
 # Instalando development tools
 RUN --mount=type=cache,dst=/var/cache/dnf \
@@ -104,8 +89,6 @@ RUN printf 'omit_dracutmodules+=" nfs "\nomit_drivers+=" nfs nfsv3 nfsv4 nfs_acl
 
 # LINTING: Verifica se a imagem atômica foi construída de forma íntegra e sem violações do OSTree
 RUN bootc container lint
-<<<<<<< HEAD
-=======
 
 # ====================================================================
 # ESTÁGIO 2: Otimização Extrema de Camadas com Chunkah
@@ -129,4 +112,3 @@ RUN --mount=from=final,src=/,target=/chunkah,ro \
 FROM oci-archive:out.ociarchive
 LABEL ostree.bootable="true"
 LABEL containers.bootc="1"
->>>>>>> 34e83be (Alterações no Containerfile e adição do Chunkah.)
