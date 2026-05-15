@@ -1,4 +1,10 @@
-FROM quay.io/fedora/fedora-bootc:latest
+# ====================================================================
+# ESTÁGIO 1: Construção do Sistema (Herdado como 'final')
+# ====================================================================
+FROM quay.io/fedora/fedora-bootc:latest AS final
+LABEL ostree.bootable="true"
+LABEL containers.bootc="1"
+
 
 # Instalando o KDE Desktop com otimização de cache para nuvem
 RUN --mount=type=cache,dst=/var/cache/dnf \
@@ -15,8 +21,12 @@ RUN rpm --import https://windsurf-stable.codeiumdata.com/wVxQEIWkwPUEAGf3/yum/RP
     echo "gpgcheck=1" >> /etc/yum.repos.d/windsurf.repo && \
     echo "gpgkey=https://windsurf-stable.codeiumdata.com/wVxQEIWkwPUEAGf3/yum/RPM-GPG-KEY-windsurf" >> /etc/yum.repos.d/windsurf.repo
 
-# Atualização do sistema e instalação dos pacotes adicionais
+# Copia a pasta de listas de pacotes para dentro da imagem temporariamente
+COPY pacotes/ /tmp/pacotes/
+
+# Instala os pacotes a partir das listas .txt
 RUN --mount=type=cache,dst=/var/cache/dnf \
+<<<<<<< HEAD
     dnf update -y && \
     dnf install -y kate wireshark fastfetch podman-compose podman-docker \
     plymouth plymouth-theme-spinner virt-manager qemu qemu-kvm libvirt curl gh git btop ripgrep eza \
@@ -29,6 +39,13 @@ RUN --mount=type=cache,dst=/var/cache/dnf \
     cmake ninja-build gdb clang libgomp libomp-devel\
     && dnf remove -y PackageKit \
     && dnf clean all
+=======
+    grep -v '^#' /tmp/pacotes/packages_system.txt | tr '\n' ' ' | xargs dnf install -y && \
+    grep -v '^#' /tmp/pacotes/packages_dev_cli.txt | tr '\n' ' ' | xargs dnf install -y && \
+    grep -v '^#' /tmp/pacotes/packages_apps.txt | tr '\n' ' ' | xargs dnf install -y && \
+    dnf remove -y PackageKit && \
+    dnf clean all
+>>>>>>> 34e83be (Alterações no Containerfile e adição do Chunkah.)
 
 # Instalando development tools
 RUN --mount=type=cache,dst=/var/cache/dnf \
@@ -73,5 +90,43 @@ RUN plymouth-set-default-theme spinner
 # Mascara o serviço de remount para evitar erros visuais inofensivos no boot
 RUN systemctl mask systemd-remount-fs.service
 
+# ====================================================================
+# OTIMIZAÇÕES DE KERNEL, MEMÓRIA E BOOT (Dracut / ZRAM)
+# ====================================================================
+
+# Otimização do ZRAM para alta compressão (zstd) e uso total da RAM
+RUN echo -e "[zram0]\nzram-size = ram\ncompression-algorithm = zstd" > /etc/systemd/zram-generator.conf
+
+# Remoção de módulos de rede NFS do Dracut para boot mais rápido e reconstrução do initramfs
+RUN printf 'omit_dracutmodules+=" nfs "\nomit_drivers+=" nfs nfsv3 nfsv4 nfs_acl nfs_common sunrpc rxrpc rpcrdma auth_rpcgss rpcsec_gss_krb5 "\n' > /etc/dracut.conf.d/no-nfs.conf && \
+    kver="$(rpm -q kernel-core --queryformat '%{VERSION}-%{RELEASE}.%{ARCH}')" && \
+    dracut -f /usr/lib/modules/${kver}/initramfs.img ${kver}
+
 # LINTING: Verifica se a imagem atômica foi construída de forma íntegra e sem violações do OSTree
 RUN bootc container lint
+<<<<<<< HEAD
+=======
+
+# ====================================================================
+# ESTÁGIO 2: Otimização Extrema de Camadas com Chunkah
+# ====================================================================
+# Puxa a ferramenta de compressão da CoreOS
+FROM quay.io/coreos/chunkah AS chunkah
+ARG CHUNKAH_CONFIG_STR
+# Monta a nossa imagem 'final' e comprime todas as camadas
+RUN --mount=from=final,src=/,target=/chunkah,ro \
+    --mount=type=bind,target=/run/src,rw \
+    chunkah build --max-layers 128 \
+    --prune /sysroot/ \
+    --label ostree.commit- \
+    --label ostree.final-diffid- \
+    > /run/src/out.ociarchive
+
+# ====================================================================
+# ESTÁGIO 3: Imagem OCI Finalizada
+# ====================================================================
+# Gera o sistema a partir do arquivo comprimido
+FROM oci-archive:out.ociarchive
+LABEL ostree.bootable="true"
+LABEL containers.bootc="1"
+>>>>>>> 34e83be (Alterações no Containerfile e adição do Chunkah.)

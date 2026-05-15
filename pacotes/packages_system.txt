@@ -1,0 +1,43 @@
+# Virtualização e Drivers Gráficos
+qemu
+qemu-kvm
+libvirt
+virt-manager
+mesa-vulkan-drivers
+mesa-va-drivers
+mesa-libGL
+
+# Utilitários de Sistema e Segurança
+fwupd
+setroubleshoot
+plymouth
+plymouth-theme-spinner
+@networkmanager-submodules
+@multimedia
+ffmpegthumbnailer
+xdg-utils
+compsize
+flatpak
+tree
+tuned
+tuned-ppd
+zram-generator
+spice-vdagent
+fpaste
+auditctl
+unzip
+unrar
+usbutils
+sysfsutils
+bash-color-prompt
+
+# Fontes e Suporte a Idiomas
+tesseract-langpack-por
+tesseract-langpack-eng
+tesseract-langpack-fra
+glibc-langpack-pt
+fira-code-fonts
+cascadia-code-fonts
+langpacks-fonts-pt
+langpacks-pt_BR
+langpacks-core-pt_BR

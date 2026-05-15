@@ -1,0 +1,26 @@
+# Ferramentas de Linha de Comando (CLI)
+fastfetch
+curl
+gh
+git
+btop
+ripgrep
+eza
+procps-ng
+file
+
+# Ferramentas de Compilação, C++ e HPC
+@development-tools
+cmake
+ninja-build
+gdb
+clang
+libgomp
+libomp-devel
+
+# Ecossistema de Contêineres
+podman
+podman-compose
+podman-docker
+distrobox
+toolbox
