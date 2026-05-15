@@ -72,6 +72,9 @@ jobs:
           tags: ${{ steps.metadata.outputs.tags }}
           labels: ${{ steps.metadata.outputs.labels }}
           oci: false
+          extra-args: |
+            --skip-unused-stages=false
+            --security-opt=label=disable
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
