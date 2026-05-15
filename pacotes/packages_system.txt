@@ -30,6 +30,8 @@ unrar
 usbutils
 sysfsutils
 bash-color-prompt
+bash-completion
+kcalc
 
 # Fontes e Suporte a Idiomas
 tesseract-langpack-por

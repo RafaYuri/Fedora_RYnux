@@ -19,7 +19,12 @@ RUN rpm --import https://windsurf-stable.codeiumdata.com/wVxQEIWkwPUEAGf3/yum/RP
     echo "enabled=1" >> /etc/yum.repos.d/windsurf.repo && \
     echo "autorefresh=1" >> /etc/yum.repos.d/windsurf.repo && \
     echo "gpgcheck=1" >> /etc/yum.repos.d/windsurf.repo && \
-    echo "gpgkey=https://windsurf-stable.codeiumdata.com/wVxQEIWkwPUEAGf3/yum/RPM-GPG-KEY-windsurf" >> /etc/yum.repos.d/windsurf.repo
+    echo "gpgkey=https://windsurf-stable.codeiumdata.com/wVxQEIWkwPUEAGf3/yum/RPM-GPG-KEY-windsurf" >> /etc/yum.repos.d/windsurf.repo && \
+
+# Instala a IDE windsurf
+RUN --mount=type=cache,dst=/var/cache/dnf \
+    dnf install windsurf && \
+    dnf clean all
 
 # Copia a pasta de listas de pacotes para dentro da imagem temporariamente
 COPY pacotes/ /tmp/pacotes/
@@ -55,11 +60,8 @@ RUN --mount=type=cache,dst=/var/cache/dnf \
 # Habilitar o serviço de virtualização para iniciar com o sistema
 RUN systemctl enable libvirtd
 
-# Configuração dos repositórios Flatpak (Removendo a insistência do repositório Fedora)
-RUN rm -rf /etc/flatpak/remotes.d/fedora* && \
-    rm -rf /usr/share/flatpak/remotes.d/fedora* && \
-    mkdir -p /etc/flatpak/remotes.d && \
-    curl -o /etc/flatpak/remotes.d/flathub.flatpakrepo https://dl.flathub.org/repo/flathub.flatpakrepo
+# Configuração dos repositórios Flatpak (adicionando o flathub)
+RUN curl -o /etc/flatpak/remotes.d/flathub.flatpakrepo https://dl.flathub.org/repo/flathub.flatpakrepo
 
 # Customizando a identidade do sistema para RYnux e adicionando o GitHub
 RUN sed -i 's/NAME="Fedora Linux"/NAME="Fedora RYnux"/' /usr/lib/os-release && \

@@ -30,5 +30,11 @@ A automação deste repositório compila o sistema operacional diariamente. Para
 
 Uma vez instalado, o sistema abandona o gerenciamento de pacotes tradicional. O RYnux se conecta automaticamente ao GitHub Container Registry (GHCR) e faz o download de atualizações de forma silenciosa em segundo plano. Basta reiniciar a máquina para aplicar a versão mais recente, mantendo a integridade do ecossistema.
 
+## 🧰 Pós-instalação e Ambiente de Usuário
+
+O Fedora RYnux entrega um sistema base limpo e imutável. Para instalar ferramentas de produtividade, players de multimídia ou configurar ambientes avançados de desenvolvimento, disponibilizamos scripts modulares de pós-instalação.
+
+👉 **[Consulte o Guia de Pós-instalação na pasta `/setup`](./setup/README.md)** para personalizar o seu ambiente de forma automatizada.
+
 ---
 *Construído com a robustez do Fedora e a flexibilidade das imagens em contêiner.*
