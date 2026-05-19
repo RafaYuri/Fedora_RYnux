@@ -11,10 +11,11 @@ mesa-libGL
 amd-gpu-firmware
 intel-gpu-firmware
 xorg-x11-drv-amdgpu
-intel-media-driver
+libva-intel-media-driver
 
 # Firmwares de Rede (Wi-Fi)
-iwlwifi-firmware
+iwlwifi-mvm-firmware
+iwlwifi-mld-firmware
 realtek-firmware
 
 # Utilitários de Sistema e Segurança
