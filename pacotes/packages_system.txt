@@ -12,6 +12,7 @@ amd-gpu-firmware
 intel-gpu-firmware
 xorg-x11-drv-amdgpu
 libva-intel-media-driver
+linux-firmware
 
 # Firmwares de Rede (Wi-Fi)
 iwlwifi-mvm-firmware
