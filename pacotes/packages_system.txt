@@ -43,3 +43,8 @@ cascadia-code-fonts
 langpacks-fonts-pt
 langpacks-pt_BR
 langpacks-core-pt_BR
+google-noto-sans-fonts
+google-noto-serif-fonts
+google-noto-color-emoji-fonts
+google-noto-emoji-fonts
+fontawesome-fonts-all
