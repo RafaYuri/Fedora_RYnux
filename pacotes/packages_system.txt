@@ -7,6 +7,16 @@ mesa-vulkan-drivers
 mesa-va-drivers
 mesa-libGL
 
+# Firmware e Drivers Gráficos Universais (AMD e Intel)
+amd-gpu-firmware
+intel-gpu-firmware
+xorg-x11-drv-amdgpu
+intel-media-driver
+
+# Firmwares de Rede (Wi-Fi)
+iwlwifi-firmware
+realtek-firmware
+
 # Utilitários de Sistema e Segurança
 fwupd
 setroubleshoot
