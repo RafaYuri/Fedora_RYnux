@@ -10,9 +10,18 @@ echo "🚀 Iniciando a instalação do Homebrew..."
 if command -v brew &> /dev/null; then
     echo "✅ O Homebrew já está instalado no sistema."
 else
-    # A variável NONINTERACTIVE=1 faz o script rodar direto, sem pausas interativas
-    NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    echo "✅ Instalação base do Homebrew concluída."
+    echo "🔑 O instalador precisa preparar diretórios na raiz. Por favor, valide o administrador:"
+
+    # Atualiza o ticket do sudo antecipadamente para evitar pausas interativas
+    sudo -v
+
+    # Roda a instalação e avalia se o resultado foi um sucesso (exit code 0)
+    if NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"; then
+        echo "✅ Instalação base do Homebrew concluída."
+    else
+        echo "❌ Ocorreu um erro durante a instalação base. Abortando."
+        exit 1
+    fi
 fi
 
 echo "⚙️ Configurando as variáveis de ambiente (PATH)..."
