@@ -60,8 +60,11 @@ RUN --mount=type=cache,dst=/var/cache/dnf \
 # Habilitar o serviço de virtualização para iniciar com o sistema
 RUN systemctl enable libvirtd
 
-# Configuração dos repositórios Flatpak (adicionando o flathub)
-RUN curl -o /etc/flatpak/remotes.d/flathub.flatpakrepo https://dl.flathub.org/repo/flathub.flatpakrepo
+# Configuração dos repositórios Flatpak (Substituindo o repositório Fedora pelo Flathub puro via UBlue)
+RUN dnf remove -y fedora-flathub-remote && \
+    mkdir -p /etc/flatpak/remotes.d/ && \
+    curl --retry 3 -Lo /etc/flatpak/remotes.d/flathub.flatpakrepo https://dl.flathub.org/repo/flathub.flatpakrepo && \
+    mv -f /usr/lib/systemd/system/flatpak-add-flathub-repos.service /usr/lib/systemd/system/flatpak-add-fedora-repos.service
 
 # Customizando a identidade do sistema para RYnux e adicionando o GitHub
 RUN sed -i 's/NAME="Fedora Linux"/NAME="Fedora RYnux"/' /usr/lib/os-release && \
