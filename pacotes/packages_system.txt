@@ -48,3 +48,4 @@ google-noto-serif-fonts
 google-noto-color-emoji-fonts
 google-noto-emoji-fonts
 fontawesome-fonts-all
+stix-fonts
