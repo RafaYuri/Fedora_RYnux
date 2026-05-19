@@ -11,7 +11,7 @@ FLATPAKS_ACAD=(
     "org.scilab.Scilab"                       # Computação numérica e matemática aplicada
     "org.octave.Octave"                       # Linguagem de alto nível para cálculos numéricos
     "io.github.wxmaxima_developers.wxMaxima"  # Sistema de álgebra computacional (CAS)
-    "org.paraview.Paraview"                   # Visualização e análise de dados (CFD/Malhas)
+    "org.paraview.ParaView"                   # Visualização e análise de dados (CFD/Malhas)
 )
 
 echo "📦 Baixando pacotes. Origem forçada: repositório 'flathub'..."
