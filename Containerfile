@@ -38,12 +38,13 @@ RUN --mount=type=cache,dst=/var/cache/dnf \
     dnf clean all
 
 # Forçar o Fontconfig a salvar e ler o cache a partir do /usr (imutável no bootc)
-RUN mkdir -p /etc/fonts/conf.d && \
-    echo '<?xml version="1.0"?>\n\
-<!DOCTYPE fontconfig SYSTEM "urn:fontconfig:fonts.dtd">\n\
-<fontconfig>\n\
-  <cachedir>/usr/lib/fontconfig/cache</cachedir>\n\
-</fontconfig>' > /etc/fonts/conf.d/00-bootc-immutable-cache.conf
+COPY <<EOF /etc/fonts/conf.d/00-bootc-immutable-cache.conf
+<?xml version="1.0"?>
+<!DOCTYPE fontconfig SYSTEM "urn:fontconfig:fonts.dtd">
+<fontconfig>
+  <cachedir>/usr/lib/fontconfig/cache</cachedir>
+</fontconfig>
+EOF
 
 # Criar o diretório e gerar o cache estático que vai encapsulado na imagem
 RUN mkdir -p /usr/lib/fontconfig/cache && fc-cache -f -v
