@@ -17,6 +17,7 @@ FLATPAKS_PROD=(
     "org.qbittorrent.qBittorrent"                 # Cliente Torrent leve e open-source
     "io.github.mhogomchungu.media-downloader"     # Download de mídias e vídeos
     "org.localsend.localsend_app"                 # Transferência de arquivos via rede local (AirDrop open-source)
+    "com.brave.Browser"                           # Navegador de internet Brave
 )
 
 echo "📦 Baixando pacotes. Origem forçada: repositório 'flathub'..."

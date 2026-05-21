@@ -37,28 +37,9 @@ RUN --mount=type=cache,dst=/var/cache/dnf \
     dnf remove -y PackageKit && \
     dnf clean all
 
-# Forçar o Fontconfig a salvar e ler o cache a partir do /usr (imutável no bootc)
-RUN mkdir -p /etc/fonts/conf.d && \
-    printf '%s\n' \
-    '<?xml version="1.0"?>' \
-    '<!DOCTYPE fontconfig SYSTEM "urn:fontconfig:fonts.dtd">' \
-    '<fontconfig>' \
-    '  <cachedir>/usr/lib/fontconfig/cache</cachedir>' \
-    '</fontconfig>' > /etc/fonts/conf.d/00-bootc-immutable-cache.conf
-
-# Criar o diretório e gerar o cache estático que vai encapsulado na imagem
-RUN mkdir -p /usr/lib/fontconfig/cache && fc-cache -f -v
-
 # Instalando development tools
 RUN --mount=type=cache,dst=/var/cache/dnf \
     dnf group install -y development-tools && \
-    dnf clean all
-
-# Configurando o repositório e instalando o Brave Browser
-RUN --mount=type=cache,dst=/var/cache/dnf \
-    rpm --import https://brave-browser-rpm-release.s3.brave.com/brave-core.asc && \
-    curl -fsSLo /etc/yum.repos.d/brave-browser.repo https://brave-browser-rpm-release.s3.brave.com/brave-browser.repo && \
-    dnf install -y brave-browser && \
     dnf clean all
 
 # Instalando repositórios RPM Fusion, codecs multimídia e removendo o repositório
@@ -102,11 +83,13 @@ RUN mkdir -p /etc/systemd/system/bootc-fetch-apply-updates.service.d/ && \
 # ====================================================================
 # SCRIPT DE AVISO: Notificação de atualizações pendentes no Terminal
 # ====================================================================
-RUN echo -e '#!/bin/bash\n\
-# Verifica discretamente se o bootc tem um deploy pendente em stage\n\
-if bootc status 2>/dev/null | grep -q "Staged:"; then\n\
-    echo -e "\\n\\e[1;36m🔄 [Fedora RYnux]* Há uma atualização do sistema pronta para ser aplicada no próximo reboot.\\e[0m\\n"\n\
-fi' > /etc/profile.d/bootc-pending-notify.sh && \
+RUN printf '%s\n' \
+    '#!/bin/bash' \
+    '# Verifica discretamente se o bootc tem um deploy pendente em stage' \
+    'if bootc status 2>/dev/null | grep -q "Staged:"; then' \
+    '    echo -e "\n\e[1;36m🔄 [Fedora RYnux]* Há uma atualização do sistema pronta para ser aplicada no próximo reboot.\e[0m\n"' \
+    'fi' \
+    > /etc/profile.d/bootc-pending-notify.sh && \
     chmod +x /etc/profile.d/bootc-pending-notify.sh
 
 # ====================================================================

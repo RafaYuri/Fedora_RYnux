@@ -3,3 +3,5 @@ kate
 wireshark
 okular
 gwenview
+firefox
+firefox-langpacks
