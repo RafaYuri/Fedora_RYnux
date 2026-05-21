@@ -88,6 +88,16 @@ RUN mkdir -p /etc/systemd/system/bootc-fetch-apply-updates.service.d/ && \
     > /etc/systemd/system/bootc-fetch-apply-updates.service.d/override.conf
 
 # ====================================================================
+# SCRIPT DE AVISO: Notificação de atualizações pendentes no Terminal
+# ====================================================================
+RUN echo -e '#!/bin/bash\n\
+# Verifica discretamente se o bootc tem um deploy pendente em stage\n\
+if bootc status 2>/dev/null | grep -q "Staged:"; then\n\
+    echo -e "\\n\\e[1;36m🔄 [Fedora RYnux]* Há uma atualização do sistema pronta para ser aplicada no próximo reboot.\\e[0m\\n"\n\
+fi' > /etc/profile.d/bootc-pending-notify.sh && \
+    chmod +x /etc/profile.d/bootc-pending-notify.sh
+
+# ====================================================================
 # OTIMIZAÇÕES DE KERNEL, MEMÓRIA E BOOT (Dracut / ZRAM)
 # ====================================================================
 
