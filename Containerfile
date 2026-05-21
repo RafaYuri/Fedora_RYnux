@@ -81,6 +81,13 @@ RUN plymouth-set-default-theme spinner
 RUN systemctl mask systemd-remount-fs.service
 
 # ====================================================================
+# CORREÇÃO: Impedir reboots automáticos do bootc
+# ====================================================================
+RUN mkdir -p /etc/systemd/system/bootc-fetch-apply-updates.service.d/ && \
+    printf '[Service]\nExecStart=\nExecStart=/usr/bin/bootc upgrade --queue --quiet\n' \
+    > /etc/systemd/system/bootc-fetch-apply-updates.service.d/override.conf
+
+# ====================================================================
 # OTIMIZAÇÕES DE KERNEL, MEMÓRIA E BOOT (Dracut / ZRAM)
 # ====================================================================
 
