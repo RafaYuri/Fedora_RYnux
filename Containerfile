@@ -81,52 +81,20 @@ RUN mkdir -p /etc/systemd/system/bootc-fetch-apply-updates.service.d/ && \
     > /etc/systemd/system/bootc-fetch-apply-updates.service.d/override.conf
 
 # ====================================================================
-# SCRIPT DE AVISO: Notificação de atualizações pendentes (Versão Final)
+# NOTIFICAÇÃO DE REBOOT: Versão para Bash + Oh-My-Bash
 # ====================================================================
 
-# 1. Cria o script que roda como root e valida a estrutura YAML do bootc
+# 1. Cria o script centralizado que checa a flag nativa do bootc
 RUN printf '%s\n' \
     '#!/bin/bash' \
-    '# Procura pela linha "staged:" isolada no YAML, o que indica que há um deploy agendado' \
-    'if bootc status 2>/dev/null | grep -qE "^\s*staged:\s*$"; then' \
-    '    touch /run/bootc-update-ready' \
-    'else' \
-    '    rm -f /run/bootc-update-ready' \
+    'if [ -f /run/reboot-required ]; then' \
+    '    echo -e "\e[1;36m🔄 Atualização pendente, reinicie para aplicação.\e[0m"' \
     'fi' \
-    > /usr/local/bin/check-bootc-staged.sh && \
-    chmod +x /usr/local/bin/check-bootc-staged.sh
+    > /usr/local/bin/bootc-notify.sh && \
+    chmod +x /usr/local/bin/bootc-notify.sh
 
-# 2. Cria o serviço do systemd para executar a checagem
-RUN printf '%s\n' \
-    '[Unit]' \
-    'Description=Verifica se existem atualizações prontas no bootc' \
-    '[Service]' \
-    'Type=oneshot' \
-    'ExecStart=/usr/local/bin/check-bootc-staged.sh' \
-    > /etc/systemd/system/bootc-check-staged.service
-
-# 3. Cria o timer para rodar a checagem 1 minuto após o boot e a cada 15 minutos depois disso
-RUN printf '%s\n' \
-    '[Unit]' \
-    'Description=Roda a checagem de staged updates do bootc periodicamente' \
-    '[Timer]' \
-    'OnBootSec=1min' \
-    'OnUnitActiveSec=15min' \
-    '[Install]' \
-    'WantedBy=timers.target' \
-    > /etc/systemd/system/bootc-check-staged.timer
-
-# 4. Habilita o timer para iniciar junto com o sistema
-RUN systemctl enable bootc-check-staged.timer
-
-# 5. Cria o script do perfil do terminal (executado instantaneamente pelo usuário comum)
-RUN printf '%s\n' \
-    '#!/bin/bash' \
-    'if [ -f /run/bootc-update-ready ]; then' \
-    '    echo -e "\n\e[1;36m🔄 [Fedora RYnux]* Há uma atualização do sistema pronta para ser aplicada no próximo reboot.\e[0m\n"' \
-    'fi' \
-    > /etc/profile.d/bootc-pending-notify.sh && \
-    chmod +x /etc/profile.d/bootc-pending-notify.sh
+# 2. Injeta o gatilho no bashrc do sistema
+RUN printf '\n# Notificação de bootc\n[ -f /usr/local/bin/bootc-notify.sh ] && /usr/local/bin/bootc-notify.sh\n' >> /etc/bashrc
 
 # ====================================================================
 # OTIMIZAÇÕES DE KERNEL, MEMÓRIA E BOOT (Dracut / ZRAM)
