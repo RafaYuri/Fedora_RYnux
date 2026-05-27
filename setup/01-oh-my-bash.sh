@@ -1,7 +1,8 @@
 #!/bin/bash
 # ==============================================================================
 # Script: 01-oh-my-bash.sh
-# Descrição: Instala o Oh My Bash e garante a configuração do ~/.bash_profile
+# Descrição: Instala o Oh My Bash, garante a configuração do ~/.bash_profile e
+# configura a notificação de atualização pendente
 # ==============================================================================
 
 echo "🚀 Iniciando a instalação do Oh My Bash..."
@@ -38,6 +39,29 @@ EOF
 else
     # Se não existia, o instalador acabou de criar a versão padrão correta
     echo "ℹ️ O arquivo $BASH_PROFILE não existia anteriormente e foi criado pelo instalador."
+fi
+
+# 3. Injeta a notificação do bootc no ~/.bashrc de forma idempotente
+BASHRC="$HOME/.bashrc"
+BOOTC_CMD="[ -f /usr/local/bin/bootc-notify.sh ] && /usr/local/bin/bootc-notify.sh"
+
+echo "🔍 Verificando o arquivo $BASHRC para a notificação do bootc..."
+
+if [[ -f "$BASHRC" ]]; then
+    if ! grep -qF "$BOOTC_CMD" "$BASHRC"; then
+        echo "⚙️ Adicionando a notificação de bootc ao $BASHRC..."
+
+        cat << 'EOF' >> "$BASHRC"
+
+# Notificação de bootc
+[ -f /usr/local/bin/bootc-notify.sh ] && /usr/local/bin/bootc-notify.sh
+EOF
+        echo "✅ Notificação de bootc configurada com sucesso."
+    else
+        echo "✅ O $BASHRC já possui a notificação de bootc. Nenhuma alteração necessária."
+    fi
+else
+    echo "⚠️ O arquivo $BASHRC não foi encontrado. A notificação de bootc não foi adicionada."
 fi
 
 echo "🎉 Oh My Bash instalado e configurado!"

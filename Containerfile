@@ -84,7 +84,7 @@ RUN mkdir -p /etc/systemd/system/bootc-fetch-apply-updates.service.d/ && \
 # NOTIFICAÇÃO DE REBOOT: Versão para Bash + Oh-My-Bash
 # ====================================================================
 
-# 1. Cria o script centralizado que checa a flag nativa do bootc
+# Cria o script centralizado que checa a flag nativa do bootc
 RUN printf '%s\n' \
     '#!/bin/bash' \
     'if [ -f /run/reboot-required ]; then' \
@@ -92,9 +92,6 @@ RUN printf '%s\n' \
     'fi' \
     > /usr/local/bin/bootc-notify.sh && \
     chmod +x /usr/local/bin/bootc-notify.sh
-
-# 2. Injeta o gatilho no bashrc do sistema
-RUN printf '\n# Notificação de bootc\n[ -f /usr/local/bin/bootc-notify.sh ] && /usr/local/bin/bootc-notify.sh\n' >> /etc/bashrc
 
 # ====================================================================
 # OTIMIZAÇÕES DE KERNEL, MEMÓRIA E BOOT (Dracut / ZRAM)
