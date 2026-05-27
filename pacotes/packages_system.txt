@@ -35,7 +35,8 @@ glow
 git-credential-libsecret
 grub2-tools-extra
 gum
-gvfs{,-fuse}
+gvfs
+gvfs-fuse
 icoutils
 ifuse
 igt-gpu-tools
@@ -61,7 +62,9 @@ powerstat
 powertop
 rclone
 restic
-samba-winbind{,-clients,-modules}
+samba-winbind
+samba-winbind-clients
+samba-winbind-modules
 setools-console
 squashfs-tools
 symlinks
