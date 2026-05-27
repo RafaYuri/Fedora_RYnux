@@ -46,7 +46,6 @@ krb5-workstation
 ksystemlog
 libcamera-gstreamer
 libcamera-tools
-libfdk-aac
 libimobiledevice-utils
 libratbag-ratbagd
 libxcrypt-compat
