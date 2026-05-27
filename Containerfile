@@ -77,7 +77,7 @@ RUN systemctl mask systemd-remount-fs.service
 # CORREÇÃO: Impedir reboots automáticos do bootc
 # ====================================================================
 RUN mkdir -p /etc/systemd/system/bootc-fetch-apply-updates.service.d/ && \
-    printf '[Service]\nExecStart=\nExecStart=/usr/bin/bootc upgrade --queue --quiet\n' \
+    printf '[Service]\nExecStart=\nExecStart=/usr/bin/bootc upgrade --quiet\n' \
     > /etc/systemd/system/bootc-fetch-apply-updates.service.d/override.conf
 
 # ====================================================================
