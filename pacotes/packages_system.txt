@@ -90,6 +90,7 @@ sysfsutils
 bash-color-prompt
 bash-completion
 kcalc
+plasma-firewall
 
 # Fontes e Suporte a Idiomas
 tesseract-langpack-por

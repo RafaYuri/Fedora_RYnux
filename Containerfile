@@ -34,7 +34,7 @@ RUN --mount=type=cache,dst=/var/cache/dnf \
     grep -v '^#' /tmp/pacotes/packages_system.txt | tr '\n' ' ' | xargs dnf install -y && \
     grep -v '^#' /tmp/pacotes/packages_dev_cli.txt | tr '\n' ' ' | xargs dnf install -y && \
     grep -v '^#' /tmp/pacotes/packages_apps.txt | tr '\n' ' ' | xargs dnf install -y && \
-    dnf remove -y PackageKit plasma-browser-integration && \
+    dnf remove -y PackageKit plasma-browser-integration firewall-config && \
     dnf clean all
 
 # Instalando development tools
