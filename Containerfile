@@ -21,9 +21,9 @@ RUN rpm --import https://windsurf-stable.codeiumdata.com/wVxQEIWkwPUEAGf3/yum/RP
     echo "gpgcheck=1" >> /etc/yum.repos.d/windsurf.repo && \
     echo "gpgkey=https://windsurf-stable.codeiumdata.com/wVxQEIWkwPUEAGf3/yum/RPM-GPG-KEY-windsurf" >> /etc/yum.repos.d/windsurf.repo
 
-# Instala a IDE windsurf
+# Instala a IDE devin-desktop
 RUN --mount=type=cache,dst=/var/cache/dnf \
-    dnf install -y windsurf && \
+    dnf install -y devin-desktop && \
     dnf clean all
 
 # Copia a pasta de listas de pacotes para dentro da imagem temporariamente
