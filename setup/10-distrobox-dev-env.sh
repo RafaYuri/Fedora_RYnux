@@ -36,7 +36,7 @@ distrobox enter $CONTAINER_NAME -- sh -c "
 
     # Ambiente Qt6 e IDEs
     sudo dnf install -y \
-        qt6-*-devel qt6-*-examples qtcreator windsurf && \
+        qt6-*-devel qt6-*-examples qtcreator devin-desktop && \
 
     # Bibliotecas Científicas e Visualização
     sudo dnf install -y \
