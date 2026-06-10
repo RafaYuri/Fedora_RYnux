@@ -11,19 +11,14 @@ RUN --mount=type=cache,dst=/var/cache/dnf \
     dnf install -y @kde-desktop --exclude=kcharselect,krfb,kwrite && \
     dnf clean all
 
-# Configurar a chave GPG e o repositório do Windsurf
-RUN rpm --import https://windsurf-stable.codeiumdata.com/wVxQEIWkwPUEAGf3/yum/RPM-GPG-KEY-windsurf && \
-    echo "[windsurf]" > /etc/yum.repos.d/windsurf.repo && \
-    echo "name=Windsurf Repository" >> /etc/yum.repos.d/windsurf.repo && \
-    echo "baseurl=https://windsurf-stable.codeiumdata.com/wVxQEIWkwPUEAGf3/yum/repo/" >> /etc/yum.repos.d/windsurf.repo && \
-    echo "enabled=1" >> /etc/yum.repos.d/windsurf.repo && \
-    echo "autorefresh=1" >> /etc/yum.repos.d/windsurf.repo && \
-    echo "gpgcheck=1" >> /etc/yum.repos.d/windsurf.repo && \
-    echo "gpgkey=https://windsurf-stable.codeiumdata.com/wVxQEIWkwPUEAGf3/yum/RPM-GPG-KEY-windsurf" >> /etc/yum.repos.d/windsurf.repo
+# Configurar a chave GPG e o repositório do VSCode
+RUN rpm --import https://packages.microsoft.com/keys/microsoft.asc && \
+    echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\nautorefresh=1\ntype=rpm-md\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" | \
+    tee /etc/yum.repos.d/vscode.repo > /dev/null
 
-# Instala a IDE devin-desktop
+# Instala a IDE VSCode
 RUN --mount=type=cache,dst=/var/cache/dnf \
-    dnf install -y devin-desktop && \
+    dnf install -y code && \
     dnf clean all
 
 # Copia a pasta de listas de pacotes para dentro da imagem temporariamente

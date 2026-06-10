@@ -21,9 +21,9 @@ echo "📦 Injetando o arsenal de engenharia e programação..."
 
 # 2. Executa a instalação de todas as dependências dentro do container
 distrobox enter $CONTAINER_NAME -- sh -c "
-    # Configuração do Repositório Windsurf
-    sudo rpm --import https://windsurf-stable.codeiumdata.com/wVxQEIWkwPUEAGf3/yum/RPM-GPG-KEY-windsurf && \
-    echo -e '[windsurf]\nname=Windsurf Repository\nbaseurl=https://windsurf-stable.codeiumdata.com/wVxQEIWkwPUEAGf3/yum/repo/\nenabled=1\nautorefresh=1\ngpgcheck=1\ngpgkey=https://windsurf-stable.codeiumdata.com/wVxQEIWkwPUEAGf3/yum/RPM-GPG-KEY-windsurf' | sudo tee /etc/yum.repos.d/windsurf.repo
+    # Configuração do Repositório VSCode
+    sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc && \
+    echo -e '[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\nautorefresh=1\ntype=rpm-md\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc' | sudo tee /etc/yum.repos.d/vscode.repo > /dev/null
 
     sudo dnf update -y && \
 
@@ -36,7 +36,7 @@ distrobox enter $CONTAINER_NAME -- sh -c "
 
     # Ambiente Qt6 e IDEs
     sudo dnf install -y \
-        qt6-*-devel qt6-*-examples qtcreator devin-desktop && \
+        qt6-*-devel qt6-*-examples qtcreator code && \
 
     # Bibliotecas Científicas e Visualização
     sudo dnf install -y \
@@ -55,4 +55,4 @@ distrobox enter $CONTAINER_NAME -- sh -c "
 
 echo "🎉 Laboratório configurado com sucesso!"
 echo "👉 Para entrar no ambiente: distrobox enter $CONTAINER_NAME"
-echo "👉 Para exportar o Windsurf para o menu do host: distrobox-export --app windsurf"
+echo "👉 Para exportar o VSCode para o menu do host: distrobox-export --app code"
