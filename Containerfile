@@ -117,7 +117,7 @@ RUN bootc container lint
 # ESTÁGIO 2: Otimização Extrema de Camadas com Chunkah
 # ====================================================================
 # Puxa a ferramenta de compressão da CoreOS
-FROM quay.io/coreos/chunkah AS chunkah
+FROM quay.io/coreos/chunkah:latest AS chunkah
 ARG CHUNKAH_CONFIG_STR
 # Monta a nossa imagem 'final' e comprime todas as camadas
 RUN --mount=from=final,src=/,target=/chunkah,ro \
@@ -126,12 +126,12 @@ RUN --mount=from=final,src=/,target=/chunkah,ro \
     --prune /sysroot/ \
     --label ostree.commit- \
     --label ostree.final-diffid- \
-    > /run/src/out.ociarchive
+    --output oci:/run/src/out
 
 # ====================================================================
 # ESTÁGIO 3: Imagem OCI Finalizada
 # ====================================================================
 # Gera o sistema a partir do arquivo comprimido
-FROM oci:out.ociarchive
+FROM oci:out
 LABEL ostree.bootable="true"
 LABEL containers.bootc="1"
