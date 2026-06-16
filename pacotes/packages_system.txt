@@ -105,5 +105,9 @@ langpacks-core-pt_BR
 google-noto-sans-fonts
 google-noto-serif-fonts
 google-noto-color-emoji-fonts
+google-noto-sans-balinese-fonts
+google-noto-sans-cjk-fonts
+google-noto-sans-javanese-fonts
+google-noto-sans-sundanese-fonts
 fontawesome-fonts-all
 stix-fonts

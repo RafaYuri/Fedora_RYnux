@@ -94,6 +94,11 @@ RUN printf '%s\n' \
     chmod +x /usr/local/bin/bootc-notify.sh
 
 # ====================================================================
+# Permitir que kdeconnect funcione corretamente (config firewall)
+# ====================================================================
+RUN firewall-offline-cmd --add-service=kdeconnect
+
+# ====================================================================
 # OTIMIZAÇÕES DE KERNEL, MEMÓRIA E BOOT (Dracut / ZRAM)
 # ====================================================================
 
