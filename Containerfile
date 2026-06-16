@@ -132,6 +132,6 @@ RUN --mount=from=final,src=/,target=/chunkah,ro \
 # ESTÁGIO 3: Imagem OCI Finalizada
 # ====================================================================
 # Gera o sistema a partir do arquivo comprimido
-FROM oci-archive:out.ociarchive
+FROM oci:out.ociarchive
 LABEL ostree.bootable="true"
 LABEL containers.bootc="1"
