@@ -117,7 +117,7 @@ RUN bootc container lint
 # ESTÁGIO 2: Otimização Extrema de Camadas com Chunkah
 # ====================================================================
 # Puxa a ferramenta de compressão da CoreOS
-FROM quay.io/coreos/chunkah:latest AS chunkah
+FROM quay.io/coreos/chunkah AS chunkah
 ARG CHUNKAH_CONFIG_STR
 # Monta a nossa imagem 'final' e comprime todas as camadas
 RUN --mount=from=final,src=/,target=/chunkah,ro \
