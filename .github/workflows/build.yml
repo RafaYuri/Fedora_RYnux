@@ -28,9 +28,11 @@ jobs:
     name: Build and push image
     runs-on: ubuntu-26.04
     permissions:
-      contents: read
+      contents: write
       packages: write
       id-token: write
+    strategy:
+      fail-fast: false
 
     steps:
       - name: Prepare environment
