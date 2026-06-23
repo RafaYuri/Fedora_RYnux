@@ -28,11 +28,9 @@ jobs:
     name: Build and push image
     runs-on: ubuntu-26.04
     permissions:
-      contents: write
+      contents: read
       packages: write
       id-token: write
-    strategy:
-      fail-fast: false
 
     steps:
       - name: Prepare environment
@@ -42,6 +40,10 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v6
+
+      - name: Configure AppArmor & User Namespaces for Buildah
+        run: |
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0 || true
 
       - name: Liberar Espaço em Disco (Maximize Space)
         run: |
