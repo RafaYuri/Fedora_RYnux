@@ -8,7 +8,7 @@ LABEL containers.bootc="1"
 
 # Instalando o KDE Desktop com otimização de cache para nuvem
 RUN --mount=type=cache,dst=/var/cache/dnf \
-    dnf install -y @kde-desktop --exclude=kcharselect,krfb,kwrite && \
+    dnf install -y @kde-desktop --exclude=kcharselect,krfb,kwrite,akonadi* && \
     dnf clean all
 
 # Configurar a chave GPG e o repositório do Windsurf
