@@ -50,6 +50,9 @@ RUN --mount=type=cache,dst=/var/cache/dnf \
     dnf remove -y rpmfusion-free-release rpmfusion-nonfree-release && \
     dnf clean all
 
+# Força a geração do cache do fontconfig no nível do sistema
+RUN fc-cache -fsv && rm -rf /var/cache/fontconfig/*
+
 # Habilitar o serviço de virtualização para iniciar com o sistema
 RUN systemctl enable libvirtd
 

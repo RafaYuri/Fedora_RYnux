@@ -97,6 +97,7 @@ tesseract-langpack-por
 tesseract-langpack-eng
 tesseract-langpack-fra
 glibc-langpack-pt
+fontconfig
 fira-code-fonts
 cascadia-code-fonts
 langpacks-fonts-pt
