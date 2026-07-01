@@ -103,6 +103,7 @@ cascadia-code-fonts
 langpacks-fonts-pt
 langpacks-pt_BR
 langpacks-core-pt_BR
+default-fonts
 google-noto-sans-fonts
 google-noto-serif-fonts
 google-noto-color-emoji-fonts
