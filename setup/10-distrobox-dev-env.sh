@@ -27,16 +27,16 @@ distrobox enter $CONTAINER_NAME -- sh -c "
 
     sudo dnf update -y && \
 
-    # Ferramentas C++ e HPC (Adicionado GDB, Git, Eigen e OpenMPI)
+    # Ferramentas C++ e HPC (Adicionado GDB, Valgrind, Git, Eigen e OpenMPI)
     sudo dnf install -y \
-        cmake gcc-c++ gdb ninja-build make git pkg-config \
+        cmake gcc-c++ gdb valgrind ninja-build make git pkg-config \
         libgomp clang llvm libomp-devel \
         openmpi openmpi-devel \
         eigen3-devel boost-devel && \
 
     # Ambiente Qt6 e IDEs
     sudo dnf install -y \
-        qt6-*-devel qt6-*-examples qtcreator devin-desktop && \
+        qt6-*-devel qt6-*-examples qt6-doc* qtcreator devin-desktop && \
 
     # Bibliotecas Científicas e Visualização
     sudo dnf install -y \
