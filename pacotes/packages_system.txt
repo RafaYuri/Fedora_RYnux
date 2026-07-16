@@ -91,6 +91,7 @@ bash-color-prompt
 bash-completion
 kcalc
 plasma-firewall
+btrfs-assistant
 
 # Fontes e Suporte a Idiomas
 tesseract-langpack-por
