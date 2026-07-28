@@ -112,7 +112,7 @@ RUN echo -e "[zram0]\nzram-size = ram\ncompression-algorithm = zstd" > /etc/syst
 RUN dnf -y install kernel-modules-extra && \
     printf 'omit_dracutmodules+=" nfs "\nomit_drivers+=" nfs nfsv3 nfsv4 nfs_acl nfs_common sunrpc rxrpc rpcrdma auth_rpcgss rpcsec_gss_krb5 "\n' > /etc/dracut.conf.d/no-nfs.conf && \
     kver="$(rpm -q kernel-core --queryformat '%{VERSION}-%{RELEASE}.%{ARCH}')" && \
-    dracut -f /usr/lib/modules/${kver}/initramfs.img ${kver}
+    HOME=/var/tmp dracut --no-hostonly --force /usr/lib/modules/${kver}/initramfs.img ${kver}
 
 # LINTING: Verifica se a imagem atômica foi construída de forma íntegra e sem violações do OSTree
 RUN bootc container lint
