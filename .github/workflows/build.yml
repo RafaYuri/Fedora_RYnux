@@ -54,6 +54,13 @@ jobs:
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
           df -h
 
+      - name: Criar Swap Memory
+        run: |
+          sudo fallocate -l 8G /swapfile
+          sudo chmod 600 /swapfile
+          sudo mkswap /swapfile
+          sudo swapon /swapfile
+
       - name: Obter data atual
         id: date
         run: |
@@ -83,9 +90,11 @@ jobs:
           labels: ${{ steps.metadata.outputs.labels }}
           oci: false
           extra-args: |
-            --build-arg CHUNKAH_CONFIG_STR="{}"
+            ---build-arg CHUNKAH_CONFIG_STR="{}"
             --skip-unused-stages=false
             --security-opt=label=disable
+            --security-opt=seccomp=unconfined
+            --cap-add=SYS_ADMIN
 
       - name: Login no GitHub Container Registry
         uses: docker/login-action@v4
