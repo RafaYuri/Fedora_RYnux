@@ -83,12 +83,9 @@ jobs:
           labels: ${{ steps.metadata.outputs.labels }}
           oci: false
           extra-args: |
-            ---build-arg CHUNKAH_CONFIG_STR="{}"
             --skip-unused-stages=false
             --security-opt=label=disable
-            --security-opt=seccomp=unconfined
-            --cap-add=SYS_ADMIN
-
+            
       - name: Login no GitHub Container Registry
         uses: docker/login-action@v4
         if: github.event_name != 'pull_request'
