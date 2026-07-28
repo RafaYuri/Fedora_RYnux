@@ -125,7 +125,7 @@ FROM quay.io/coreos/chunkah AS chunkah
 ARG CHUNKAH_CONFIG_STR
 # Monta a nossa imagem 'final' e comprime todas as camadas
 RUN --mount=from=final,src=/,target=/chunkah,ro \
-    --mount=type=bind,target=/run/src,rw \
+    --mount=type=bind,source=.,target=/run/src,rw \
     chunkah build --max-layers 128 \
     --prune /sysroot/ \
     --label ostree.commit- \
