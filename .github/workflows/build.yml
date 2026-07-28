@@ -83,7 +83,7 @@ jobs:
           labels: ${{ steps.metadata.outputs.labels }}
           oci: false
           extra-args: |
-            --build-arg CHUNKAH_CONFIG_STR=""
+            --build-arg CHUNKAH_CONFIG_STR="{}"
             --skip-unused-stages=false
             --security-opt=label=disable
 
