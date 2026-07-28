@@ -1,5 +1,6 @@
 # Ferramentas de Linha de Comando (CLI)
 fastfetch
+cpufetch
 curl
 gh
 git
