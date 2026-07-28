@@ -126,11 +126,10 @@ jobs:
       - name: Preparar Release Notes
         if: github.event_name != 'pull_request'
         run: |
-          # Gera uma tag legível baseada na data atual, ex: 2026-07-28
           RELEASE_TAG=$(date -u +%Y-%m-%d)
           echo "RELEASE_TAG=${RELEASE_TAG}" >> $GITHUB_ENV
           
-          # Cria um arquivo Markdown simples para o corpo da Release
+          # Cria o arquivo Markdown para o corpo da Release
           echo "### 🚀 Nova Build do Fedora RYnux" > release_notes.md
           echo "Uma nova imagem do sistema operacional foi gerada com sucesso." >> release_notes.md
           echo "" >> release_notes.md
@@ -143,7 +142,9 @@ jobs:
         uses: softprops/action-gh-release@v2
         if: github.event_name != 'pull_request'
         with:
-          tag_name: build-${{ env.RELEASE_TAG }}
-          name: "Fedora RYnux - Build ${{ env.RELEASE_TAG }}"
+          tag_name: build-${{ env.RELEASE_TAG }}.${{ github.run_number }}
+          name: "Fedora RYnux - Build ${{ env.RELEASE_TAG }} (#${{ github.run_number }})"
+          target_commitish: ${{ github.sha }}
           body_path: release_notes.md
           token: ${{ secrets.GITHUB_TOKEN }}
+          make_latest: true
