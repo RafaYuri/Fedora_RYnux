@@ -86,7 +86,7 @@ jobs:
         if: github.event_name != 'pull_request'
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | sudo podman login \
-            -u "${{ github.actor }}" --password-stdin "${{ env.IMAGE_REGISTRY }}"
+            -u "${{ github.actor }}" --password-stdin ghcr.io
 
       - name: Push e Tag da Imagem Otimizada
         if: github.event_name != 'pull_request'
@@ -114,7 +114,7 @@ jobs:
         if: github.event_name != 'pull_request'
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | cosign login \
-            -u "${{ github.actor }}" --password-stdin "${{ env.IMAGE_REGISTRY }}"
+            -u "${{ github.actor }}" --password-stdin ghcr.io
 
       - name: Assinar imagem container
         if: github.event_name != 'pull_request'
