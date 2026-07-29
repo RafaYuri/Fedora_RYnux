@@ -26,7 +26,7 @@ concurrency:
 jobs:
   build_push:
     name: Build and push image
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     permissions:
       contents: write
       packages: write
@@ -39,9 +39,9 @@ jobs:
           echo "IMAGE_NAME=${IMAGE_NAME,,}" >> ${GITHUB_ENV}
 
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@v4
 
-      - name: Configurar AppArmor & User Namespaces para Buildah
+      - name: Configurar AppArmor & User Namespaces
         run: |
           sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0 || true
 
@@ -54,59 +54,58 @@ jobs:
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
           df -h
 
-      - name: Obter data atual
-        id: date
-        run: |
-          echo "date=$(date -u +%Y\-%m\-%d\T%H\:%M\:%S\Z)" >> $GITHUB_OUTPUT
-
       - name: Metadata da Imagem
-        uses: docker/metadata-action@v6
+        uses: docker/metadata-action@v5
         id: metadata
         with:
           tags: |
             type=raw,value=${{ env.DEFAULT_TAG }}
             type=raw,value={{date 'YYYYMMDD'}}
-          labels: |
-            org.opencontainers.image.description=${{ env.IMAGE_DESC }}
-            org.opencontainers.image.title=${{ env.IMAGE_NAME }}
-            containers.bootc=1
           sep-tags: " "
 
-      - name: Construir Imagem
-        id: build_image
-        uses: redhat-actions/buildah-build@v3
-        with:
-          containerfiles: |
-            ./Containerfile
-          image: ${{ env.IMAGE_NAME }}
-          tags: ${{ steps.metadata.outputs.tags }}
-          labels: ${{ steps.metadata.outputs.labels }}
-          oci: false
-          extra-args: |
-            --skip-unused-stages=false
-            --security-opt=label=disable
-            
-      - name: Login no GitHub Container Registry
-        uses: docker/login-action@v4
-        if: github.event_name != 'pull_request'
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build da imagem inicial (Raw)
+        run: |
+          sudo podman build \
+            --skip-unused-stages=false \
+            --security-opt label=disable \
+            -t "localhost/bootc-raw:latest" \
+            -f Containerfile \
+            .
 
-      - name: Push para GHCR
-        uses: redhat-actions/push-to-registry@v3
+      - name: Rechunk via bootc-base-imagectl
+        run: |
+          PRIMARY_IMAGE="${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }}"
+          sudo podman run --rm --privileged \
+            -v /var/lib/containers:/var/lib/containers \
+            quay.io/fedora/fedora-bootc:latest \
+            /usr/libexec/bootc-base-imagectl rechunk \
+            localhost/bootc-raw:latest \
+            "${PRIMARY_IMAGE}"
+
+      - name: Login no GHCR
         if: github.event_name != 'pull_request'
-        id: push
-        env:
-          REGISTRY_USER: ${{ github.actor }}
-          REGISTRY_PASSWORD: ${{ github.token }}
-        with:
-          registry: ${{ env.IMAGE_REGISTRY }}
-          image: ${{ env.IMAGE_NAME }}
-          tags: ${{ steps.metadata.outputs.tags }}
-          username: ${{ env.REGISTRY_USER }}
-          password: ${{ env.REGISTRY_PASSWORD }}
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | sudo podman login \
+            -u "${{ github.actor }}" --password-stdin "${{ env.IMAGE_REGISTRY }}"
+
+      - name: Push e Tag da Imagem Otimizada
+        if: github.event_name != 'pull_request'
+        run: |
+          IMAGE_BASE="${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}"
+          PRIMARY_IMAGE="${IMAGE_BASE}:${{ env.DEFAULT_TAG }}"
+
+          # Push da tag principal rechunked (latest)
+          sudo podman push "${PRIMARY_IMAGE}"
+
+          # Tag e Push para as tags secundárias (ex: data YYYYMMDD)
+          for TAG in ${{ steps.metadata.outputs.tags }}; do
+            if [ "$TAG" != "${{ env.DEFAULT_TAG }}" ]; then
+              echo "→ Aplicando e enviando tag: ${TAG}"
+              sudo podman tag "${PRIMARY_IMAGE}" "${IMAGE_BASE}:${TAG}"
+              sudo podman push "${IMAGE_BASE}:${TAG}"
+            fi
+          done
+
       - name: Install Cosign
         uses: sigstore/cosign-installer@v3
         if: github.event_name != 'pull_request'
@@ -119,7 +118,6 @@ jobs:
             cosign sign -y --key env://COSIGN_PRIVATE_KEY $IMAGE_FULL:$tag
           done
         env:
-          TAGS: ${{ steps.push.outputs.digest }}
           COSIGN_EXPERIMENTAL: false
           COSIGN_PRIVATE_KEY: ${{ secrets.SIGNING_SECRET }}
 

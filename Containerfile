@@ -8,7 +8,7 @@ LABEL containers.bootc="1"
 
 # Instalando o KDE Desktop com otimização de cache para nuvem
 RUN --mount=type=cache,dst=/var/cache/dnf \
-    dnf install -y @kde-desktop --exclude=kcharselect,krfb,kwrite,akonadi* && \
+    dnf install --setopt=tsflags=nodocs -y @kde-desktop --exclude=kcharselect,krfb,kwrite,akonadi* && \
     dnf clean all
 
 # Configurar a chave GPG e o repositório do Windsurf
@@ -23,7 +23,7 @@ RUN rpm --import https://windsurf-stable.codeiumdata.com/wVxQEIWkwPUEAGf3/yum/RP
 
 # Instala a IDE devin-desktop
 RUN --mount=type=cache,dst=/var/cache/dnf \
-    dnf install -y devin-desktop && \
+    dnf install --setopt=tsflags=nodocs -y devin-desktop && \
     dnf clean all
 
 # Copia a pasta de listas de pacotes para dentro da imagem temporariamente
@@ -31,20 +31,20 @@ COPY pacotes/ /tmp/pacotes/
 
 # Instala os pacotes a partir das listas .txt
 RUN --mount=type=cache,dst=/var/cache/dnf \
-    grep -v '^#' /tmp/pacotes/packages_system.txt | tr '\n' ' ' | xargs dnf install -y && \
-    grep -v '^#' /tmp/pacotes/packages_dev_cli.txt | tr '\n' ' ' | xargs dnf install -y && \
-    grep -v '^#' /tmp/pacotes/packages_apps.txt | tr '\n' ' ' | xargs dnf install -y && \
+    grep -v '^#' /tmp/pacotes/packages_system.txt | tr '\n' ' ' | xargs dnf install --setopt=tsflags=nodocs -y && \
+    grep -v '^#' /tmp/pacotes/packages_dev_cli.txt | tr '\n' ' ' | xargs dnf install --setopt=tsflags=nodocs -y && \
+    grep -v '^#' /tmp/pacotes/packages_apps.txt | tr '\n' ' ' | xargs dnf install --setopt=tsflags=nodocs -y && \
     dnf remove -y PackageKit plasma-browser-integration firewall-config && \
     dnf clean all
 
 # Instalando development tools
 RUN --mount=type=cache,dst=/var/cache/dnf \
-    dnf group install -y development-tools && \
+    dnf group install --setopt=tsflags=nodocs -y development-tools && \
     dnf clean all
 
 # Instalando repositórios RPM Fusion, codecs multimídia e removendo o repositório
 RUN --mount=type=cache,dst=/var/cache/dnf \
-    dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \
+    dnf install --setopt=tsflags=nodocs -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \
     https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm && \
     dnf install -y --allowerasing gstreamer1-plugins-ugly gstreamer1-plugins-bad-freeworld ffmpeg libavcodec-freeworld && \
     dnf remove -y rpmfusion-free-release rpmfusion-nonfree-release && \
@@ -102,40 +102,19 @@ RUN printf '%s\n' \
 RUN firewall-offline-cmd --add-service=kdeconnect
 
 # ====================================================================
-# OTIMIZAÇÕES DE KERNEL, MEMÓRIA E BOOT (Dracut / ZRAM)
+# OTIMIZAÇÃO DE MEMÓRIA (ZRAM), INSTALAÇÃO DO KERNEL EXTRAS E LIMPEZA
+# DE ARQUIVOS RESÍDUAIS TEMPORÁRIOS
 # ====================================================================
 
 # Otimização do ZRAM para alta compressão (zstd) e uso total da RAM
 RUN echo -e "[zram0]\nzram-size = ram\ncompression-algorithm = zstd" > /etc/systemd/zram-generator.conf
 
 # Remoção de módulos de rede NFS do Dracut para boot mais rápido e reconstrução do initramfs
-RUN dnf -y install kernel-modules-extra && \
-    printf 'omit_dracutmodules+=" nfs "\nomit_drivers+=" nfs nfsv3 nfsv4 nfs_acl nfs_common sunrpc rxrpc rpcrdma auth_rpcgss rpcsec_gss_krb5 "\n' > /etc/dracut.conf.d/no-nfs.conf && \
-    kver="$(rpm -q kernel-core --queryformat '%{VERSION}-%{RELEASE}.%{ARCH}')" && \
-    HOME=/var/tmp dracut --no-hostonly --force /usr/lib/modules/${kver}/initramfs.img ${kver}
+RUN kver="$(rpm -q kernel-core --queryformat '%{VERSION}-%{RELEASE}.%{ARCH}')" && \
+    dnf install --setopt=tsflags=nodocs -y "kernel-modules-extra-${kver}" && \
+    dnf clean all && \
+    rm -rfv /var/cache/* /var/lib/* /var/log/* /tmp/* /var/tmp/*
 
 # LINTING: Verifica se a imagem atômica foi construída de forma íntegra e sem violações do OSTree
 RUN bootc container lint
 
-# ====================================================================
-# ESTÁGIO 2: Otimização Extrema de Camadas com Chunkah
-# ====================================================================
-# Puxa a ferramenta de compressão da CoreOS
-FROM quay.io/coreos/chunkah AS chunkah
-ARG CHUNKAH_CONFIG_STR
-# Monta a nossa imagem 'final' e comprime todas as camadas
-RUN --mount=from=final,src=/,target=/chunkah,ro \
-    --mount=type=bind,source=.,target=/run/src,rw \
-    chunkah build --max-layers 128 \
-    --prune /sysroot/ \
-    --label ostree.commit- \
-    --label ostree.final-diffid- \
-    --output oci:/run/src/out
-
-# ====================================================================
-# ESTÁGIO 3: Imagem OCI Finalizada
-# ====================================================================
-# Gera o sistema a partir do arquivo comprimido
-FROM oci:out
-LABEL ostree.bootable="true"
-LABEL containers.bootc="1"
