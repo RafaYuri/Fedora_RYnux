@@ -82,7 +82,7 @@ jobs:
             localhost/bootc-raw:latest \
             "${PRIMARY_IMAGE}"
 
-      - name: Login no GHCR
+      - name: Login no GHCR (Podman)
         if: github.event_name != 'pull_request'
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | sudo podman login \
@@ -109,6 +109,12 @@ jobs:
       - name: Install Cosign
         uses: sigstore/cosign-installer@v3
         if: github.event_name != 'pull_request'
+
+      - name: Login no GHCR (Cosign)
+        if: github.event_name != 'pull_request'
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | cosign login \
+            -u "${{ github.actor }}" --password-stdin "${{ env.IMAGE_REGISTRY }}"
 
       - name: Assinar imagem container
         if: github.event_name != 'pull_request'
