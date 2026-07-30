@@ -11,21 +11,6 @@ RUN --mount=type=cache,dst=/var/cache/dnf \
     dnf install --setopt=tsflags=nodocs -y @kde-desktop --exclude=kcharselect,krfb,kwrite,akonadi* && \
     dnf clean all
 
-# Configurar a chave GPG e o repositório do Windsurf
-RUN rpm --import https://windsurf-stable.codeiumdata.com/wVxQEIWkwPUEAGf3/yum/RPM-GPG-KEY-windsurf && \
-    echo "[windsurf]" > /etc/yum.repos.d/windsurf.repo && \
-    echo "name=Windsurf Repository" >> /etc/yum.repos.d/windsurf.repo && \
-    echo "baseurl=https://windsurf-stable.codeiumdata.com/wVxQEIWkwPUEAGf3/yum/repo/" >> /etc/yum.repos.d/windsurf.repo && \
-    echo "enabled=1" >> /etc/yum.repos.d/windsurf.repo && \
-    echo "autorefresh=1" >> /etc/yum.repos.d/windsurf.repo && \
-    echo "gpgcheck=1" >> /etc/yum.repos.d/windsurf.repo && \
-    echo "gpgkey=https://windsurf-stable.codeiumdata.com/wVxQEIWkwPUEAGf3/yum/RPM-GPG-KEY-windsurf" >> /etc/yum.repos.d/windsurf.repo
-
-# Instala a IDE devin-desktop
-RUN --mount=type=cache,dst=/var/cache/dnf \
-    dnf install --setopt=tsflags=nodocs -y devin-desktop && \
-    dnf clean all
-
 # Copia a pasta de listas de pacotes para dentro da imagem temporariamente
 COPY pacotes/ /tmp/pacotes/
 
