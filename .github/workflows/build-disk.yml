@@ -49,6 +49,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
+      - name: Disable AppArmor
+        run: |
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0 || true
+          sudo aa-teardown || true
+          sudo systemctl stop apparmor || true
+          
       - name: Build disk images
         id: build
         uses: osbuild/bootc-image-builder-action@main
