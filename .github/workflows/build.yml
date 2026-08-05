@@ -79,7 +79,7 @@ jobs:
             -v /var/lib/containers:/var/lib/containers \
             quay.io/fedora/fedora-bootc:latest \
             /usr/libexec/bootc-base-imagectl rechunk \
-            localhost/bootc-raw:latest \
+            --chunkah --max-layers 127 localhost/bootc-raw:latest \
             "${PRIMARY_IMAGE}"
 
       - name: Login no GHCR (Podman)
