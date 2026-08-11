@@ -10,7 +10,6 @@ mesa-libGL
 # Firmware e Drivers Gráficos Universais (AMD e Intel)
 amd-gpu-firmware
 intel-gpu-firmware
-xorg-x11-drv-amdgpu
 libva-intel-media-driver
 linux-firmware
 
