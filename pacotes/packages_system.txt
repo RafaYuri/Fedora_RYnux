@@ -92,6 +92,7 @@ kcalc
 plasma-firewall
 btrfs-assistant
 kup-backup
+rsync
 
 # Fontes e Suporte a Idiomas
 tesseract-langpack-por
