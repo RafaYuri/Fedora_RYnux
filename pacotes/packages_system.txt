@@ -91,6 +91,7 @@ bash-completion
 kcalc
 plasma-firewall
 btrfs-assistant
+kup-backup
 
 # Fontes e Suporte a Idiomas
 tesseract-langpack-por
