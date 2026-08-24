@@ -14,7 +14,6 @@ Seu foco principal é fornecer um ambiente "time-proven" e altamente otimizado p
 * **Ambiente de Desenvolvimento:**
   * Compiladores modernos e ferramentas C++ (CMake, Ninja, GDB).
   * Suporte robusto a contêineres e virtualização (Podman, Docker, Distrobox, QEMU/KVM + Virt-Manager).
-  * Windsurf IDE integrado e pronto para uso.
 
 ## 🛠️ Como instalar (Bare Metal ou VM)
 
