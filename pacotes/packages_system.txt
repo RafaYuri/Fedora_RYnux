@@ -93,6 +93,7 @@ plasma-firewall
 btrfs-assistant
 kup-backup
 rsync
+kio-snapshot
 
 # Fontes e Suporte a Idiomas
 tesseract-langpack-por
