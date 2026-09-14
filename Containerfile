@@ -48,6 +48,37 @@ RUN dnf remove -y fedora-flathub-remote && \
     rm -f /usr/lib/systemd/system/flatpak-add-fedora-repos.service
 
 # ====================================================================
+# BRANDING: Ícones do Sistema, Menu Iniciar e KInfoCenter
+# ====================================================================
+COPY branding/icons/ /tmp/branding_icons/
+COPY branding/fedora_rynux.png /tmp/branding_icons/512x512/fedora_rynux_512x512.png
+
+RUN for res in 16 24 32 48 64 128 256 512; do \
+        target_dir="/usr/share/icons/hicolor/${res}x${res}/apps"; \
+        mkdir -p "$target_dir" && \
+        cp "/tmp/branding_icons/${res}x${res}/fedora_rynux_${res}x${res}.png" "${target_dir}/fedora_rynux.png" && \
+        ln -sf fedora_rynux.png "${target_dir}/fedora-logo-icon.png" && \
+        ln -sf fedora_rynux.png "${target_dir}/start-here-kde.png" && \
+        ln -sf fedora_rynux.png "${target_dir}/distributor-logo.png" && \
+        ln -sf fedora_rynux.png "${target_dir}/distributor-logo-fedora.png"; \
+    done && \
+    # Gera um SVG escalável embutindo o PNG em base64 para sobrepor os SVGs do Fedora
+    mkdir -p /usr/share/icons/hicolor/scalable/apps && \
+    b64="$(base64 -w 0 /tmp/branding_icons/512x512/fedora_rynux_512x512.png)" && \
+    printf '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512" width="100%%" height="100%%"><image width="512" height="512" xlink:href="data:image/png;base64,%s"/></svg>\n' "$b64" > /usr/share/icons/hicolor/scalable/apps/fedora_rynux.svg && \
+    # Sobrescreve os links vetoriais no hicolor
+    ln -sf fedora_rynux.svg /usr/share/icons/hicolor/scalable/apps/distributor-logo.svg && \
+    ln -sf fedora_rynux.svg /usr/share/icons/hicolor/scalable/apps/distributor-logo-fedora.svg && \
+    ln -sf fedora_rynux.svg /usr/share/icons/hicolor/scalable/apps/fedora-logo-icon.svg && \
+    # Substitui eventuais SVGs existentes nos temas Breeze ativos
+    find /usr/share/icons/breeze* -name "distributor-logo*.svg" -exec ln -sf /usr/share/icons/hicolor/scalable/apps/fedora_rynux.svg {} + 2>/dev/null || true && \
+    rm -rf /tmp/branding_icons && \
+    # Atualiza layouts do painel do Plasma
+    find /usr/share/plasma/ -name "layout.js" -exec sed -i 's/"fedora-logo-icon"/"fedora_rynux"/g' {} + && \
+    find /usr/share/plasma/ -name "layout.js" -exec sed -i 's/"start-here-kde"/"fedora_rynux"/g' {} + && \
+    gtk-update-icon-cache -q -t -f /usr/share/icons/hicolor
+
+# ====================================================================
 # BRANDING: Identidade do Sistema (/etc/os-release)
 # ====================================================================
 RUN sed -i 's/NAME="Fedora Linux"/NAME="Fedora RYnux"/' /usr/lib/os-release && \
@@ -66,24 +97,6 @@ RUN plymouth-set-default-theme spinner
 
 # Mascara o serviço de remount para evitar erros visuais inofensivos no boot
 RUN systemctl mask systemd-remount-fs.service
-
-# ====================================================================
-# BRANDING: Ícones do Sistema, Menu Iniciar e KInfoCenter
-# ====================================================================
-COPY branding/icons/ /tmp/branding_icons/
-COPY branding/fedora_rynux.png /tmp/branding_icons/512x512/fedora_rynux_512x512.png
-
-RUN for res in 16 24 32 48 64 128 256 512; do \
-        target_dir="/usr/share/icons/hicolor/${res}x${res}/apps"; \
-        mkdir -p "$target_dir" && \
-        cp "/tmp/branding_icons/${res}x${res}/fedora_rynux_${res}x${res}.png" "${target_dir}/fedora_rynux.png" && \
-        ln -sf fedora_rynux.png "${target_dir}/fedora-logo-icon.png" && \
-        ln -sf fedora_rynux.png "${target_dir}/start-here-kde.png"; \
-    done && \
-    rm -rf /tmp/branding_icons && \
-    find /usr/share/plasma/ -name "layout.js" -exec sed -i 's/"fedora-logo-icon"/"fedora_rynux"/g' {} + && \
-    find /usr/share/plasma/ -name "layout.js" -exec sed -i 's/"start-here-kde"/"fedora_rynux"/g' {} + && \
-    gtk-update-icon-cache -q -t -f /usr/share/icons/hicolor
 
 # ====================================================================
 # BRANDING: Fastfetch (ASCII Art e Configuração de Cores)
