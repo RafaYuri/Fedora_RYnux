@@ -62,21 +62,26 @@ RUN for res in 16 24 32 48 64 128 256 512; do \
         ln -sf fedora_rynux.png "${target_dir}/distributor-logo.png" && \
         ln -sf fedora_rynux.png "${target_dir}/distributor-logo-fedora.png"; \
     done && \
-    # Gera um SVG escalável embutindo o PNG em base64 para sobrepor os SVGs do Fedora
-    mkdir -p /usr/share/icons/hicolor/scalable/apps && \
-    b64="$(base64 -w 0 /tmp/branding_icons/512x512/fedora_rynux_512x512.png)" && \
-    printf '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512" width="100%%" height="100%%"><image width="512" height="512" xlink:href="data:image/png;base64,%s"/></svg>\n' "$b64" > /usr/share/icons/hicolor/scalable/apps/fedora_rynux.svg && \
-    # Sobrescreve os links vetoriais no hicolor
-    ln -sf fedora_rynux.svg /usr/share/icons/hicolor/scalable/apps/distributor-logo.svg && \
-    ln -sf fedora_rynux.svg /usr/share/icons/hicolor/scalable/apps/distributor-logo-fedora.svg && \
-    ln -sf fedora_rynux.svg /usr/share/icons/hicolor/scalable/apps/fedora-logo-icon.svg && \
-    # Substitui eventuais SVGs existentes nos temas Breeze ativos
-    find /usr/share/icons/breeze* -name "distributor-logo*.svg" -exec ln -sf /usr/share/icons/hicolor/scalable/apps/fedora_rynux.svg {} + 2>/dev/null || true && \
+    # Remove qualquer SVG residual do Fedora no hicolor escalável para evitar precedência sobre o PNG
+    rm -f /usr/share/icons/hicolor/scalable/apps/fedora-logo-icon.svg \
+          /usr/share/icons/hicolor/scalable/apps/distributor-logo*.svg \
+          /usr/share/icons/hicolor/scalable/apps/fedora_rynux.svg && \
+    # Remove logos vetorizados do Fedora nos temas Breeze para que o KDE use os PNGs do hicolor
+    find /usr/share/icons/breeze* -name "*distributor-logo*.svg" -delete && \
+    find /usr/share/icons/breeze* -name "*fedora-logo*.svg" -delete && \
+    # Substitui os logos legados em /usr/share/pixmaps
+    mkdir -p /usr/share/pixmaps && \
+    cp /tmp/branding_icons/512x512/fedora_rynux_512x512.png /usr/share/pixmaps/fedora_rynux.png && \
+    ln -sf fedora_rynux.png /usr/share/pixmaps/fedora-logo.png && \
+    ln -sf fedora_rynux.png /usr/share/pixmaps/fedora-gdm-logo.png && \
+    ln -sf fedora_rynux.png /usr/share/pixmaps/system-logo-white.png && \
     rm -rf /tmp/branding_icons && \
     # Atualiza layouts do painel do Plasma
     find /usr/share/plasma/ -name "layout.js" -exec sed -i 's/"fedora-logo-icon"/"fedora_rynux"/g' {} + && \
     find /usr/share/plasma/ -name "layout.js" -exec sed -i 's/"start-here-kde"/"fedora_rynux"/g' {} + && \
-    gtk-update-icon-cache -q -t -f /usr/share/icons/hicolor
+    # Atualiza o cache do hicolor
+    gtk-update-icon-cache -q -t -f /usr/share/icons/hicolor && \
+    touch /usr/share/icons/hicolor
 
 # ====================================================================
 # BRANDING: Identidade do Sistema (/etc/os-release)
