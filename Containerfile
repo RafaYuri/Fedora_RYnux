@@ -1,5 +1,5 @@
 # ====================================================================
-# ESTÁGIO 1: Construção do Sistema (Herdado como 'final')
+# ESTÁGIO 1: Construção do Sistema
 # ====================================================================
 FROM quay.io/fedora/fedora-bootc:latest AS final
 LABEL ostree.bootable="true"
@@ -35,11 +35,11 @@ RUN --mount=type=cache,dst=/var/cache/dnf \
     dnf remove -y rpmfusion-free-release rpmfusion-nonfree-release && \
     dnf clean all
 
-# Força a geração do cache do fontconfig no nível do sistema
-RUN fc-cache -fsv && rm -rf /var/cache/fontconfig/*
+# Geração do cache de fontes estático e preserva para o boot
+RUN fc-cache -f
 
-# Habilitar o serviço de virtualização para iniciar com o sistema
-RUN systemctl enable libvirtd
+# Virtualização ativada sob demanda por sockets
+RUN systemctl enable virtqemud.socket virtnetworkd.socket virtstoraged.socket 2>/dev/null || systemctl enable libvirtd.socket
 
 # Configuração dos repositórios Flatpak (Flathub puro)
 RUN dnf remove -y fedora-flathub-remote && \
@@ -62,11 +62,11 @@ RUN for res in 16 24 32 48 64 128 256 512; do \
         ln -sf fedora_rynux.png "${target_dir}/distributor-logo.png" && \
         ln -sf fedora_rynux.png "${target_dir}/distributor-logo-fedora.png"; \
     done && \
-    # Remove qualquer SVG residual do Fedora no hicolor escalável para evitar precedência sobre o PNG
+    # Remove qualquer SVG residual do Fedora no hicolor escalável
     rm -f /usr/share/icons/hicolor/scalable/apps/fedora-logo-icon.svg \
           /usr/share/icons/hicolor/scalable/apps/distributor-logo*.svg \
           /usr/share/icons/hicolor/scalable/apps/fedora_rynux.svg && \
-    # Remove logos vetorizados do Fedora nos temas Breeze para que o KDE use os PNGs do hicolor
+    # Remove logos vetorizados nos temas Breeze
     find /usr/share/icons/breeze* -name "*distributor-logo*.svg" -delete && \
     find /usr/share/icons/breeze* -name "*fedora-logo*.svg" -delete && \
     # Substitui os logos legados em /usr/share/pixmaps
@@ -79,8 +79,11 @@ RUN for res in 16 24 32 48 64 128 256 512; do \
     # Atualiza layouts do painel do Plasma
     find /usr/share/plasma/ -name "layout.js" -exec sed -i 's/"fedora-logo-icon"/"fedora_rynux"/g' {} + && \
     find /usr/share/plasma/ -name "layout.js" -exec sed -i 's/"start-here-kde"/"fedora_rynux"/g' {} + && \
-    # Atualiza o cache do hicolor
+    # OTIMIZAÇÃO: Atualiza cache do hicolor E temas Breeze modificados (evita I/O e varredura do KDE no boot)
     gtk-update-icon-cache -q -t -f /usr/share/icons/hicolor && \
+    for theme in /usr/share/icons/breeze*; do \
+        [ -d "$theme" ] && gtk-update-icon-cache -q -t -f "$theme" 2>/dev/null || true; \
+    done && \
     touch /usr/share/icons/hicolor
 
 # ====================================================================
@@ -95,12 +98,10 @@ RUN sed -i 's/NAME="Fedora Linux"/NAME="Fedora RYnux"/' /usr/lib/os-release && \
     sed -i 's|^BUG_REPORT_URL=.*|BUG_REPORT_URL="https://github.com/RafaYuri/Fedora_RYnux/issues"|' /usr/lib/os-release
 
 # ====================================================================
-# PLYMOUTH: Substituição da logo e definição do tema
+# PLYMOUTH: Watermark Personalizado + Transição UEFI Suave
 # ====================================================================
 COPY branding/fedora_rynux_plymouth.png /usr/share/plymouth/themes/spinner/watermark.png
-RUN plymouth-set-default-theme spinner
-
-# Mascara o serviço de remount para evitar erros visuais inofensivos no boot
+RUN plymouth-set-default-theme bgrt
 RUN systemctl mask systemd-remount-fs.service
 
 # ====================================================================
@@ -143,9 +144,9 @@ RUN echo -e "[zram0]\nzram-size = ram\ncompression-algorithm = zstd" > /etc/syst
 # Instalação dos módulos extras para o kernel mais recente, rebuild do initramfs e limpeza
 RUN kver="$(rpm -q kernel-core --queryformat '%{VERSION}-%{RELEASE}.%{ARCH}\n' | sort -V | tail -n 1)" && \
     dnf install --setopt=tsflags=nodocs -y "kernel-modules-extra-${kver}" && \
-    dracut -vf "/usr/lib/modules/${kver}/initramfs.img" "${kver}" && \
+    dracut -vf --zstd "/usr/lib/modules/${kver}/initramfs.img" "${kver}" && \
     dnf clean all && \
-    rm -rfv /var/cache/* /var/lib/dnf /var/log/* /tmp/* /var/tmp/*
+    rm -rf /var/cache/dnf /var/lib/dnf /var/log/* /tmp/* /var/tmp/*
 
 # LINTING: Verifica integridade da imagem para bootc/OSTree
 RUN bootc container lint
