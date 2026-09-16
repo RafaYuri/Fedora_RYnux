@@ -141,12 +141,12 @@ RUN firewall-offline-cmd --add-service=kdeconnect
 # ====================================================================
 RUN echo -e "[zram0]\nzram-size = ram\ncompression-algorithm = zstd" > /etc/systemd/zram-generator.conf
 
-# Configuração restritiva do Dracut: exclui drivers Intel/Nvidia, rede e LVM do initramfs
+# Configuração restritiva do Dracut: deixa a GPU para o userspace via simpledrm
 RUN printf '%s\n' \
     'hostonly="no"' \
     'reproducible="yes"' \
     'do_strip="yes"' \
-    'omit_drivers+=" nouveau "' \
+    'omit_drivers+=" amdgpu nouveau i915 xe "' \
     'omit_dracutmodules+=" network network-manager lvm mdraid multipath fips iscsi nfs cifs qemu qemu-net "' \
     > /etc/dracut.conf.d/01-lean-initramfs.conf
 
