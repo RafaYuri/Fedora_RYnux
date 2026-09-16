@@ -141,10 +141,22 @@ RUN firewall-offline-cmd --add-service=kdeconnect
 # ====================================================================
 RUN echo -e "[zram0]\nzram-size = ram\ncompression-algorithm = zstd" > /etc/systemd/zram-generator.conf
 
-# Instalação dos módulos extras para o kernel mais recente, rebuild do initramfs e limpeza
+# Configuração restritiva do Dracut: exclui drivers Intel/Nvidia, rede e LVM do initramfs
+RUN printf '%s\n' \
+    'hostonly="no"' \
+    'reproducible="yes"' \
+    'do_strip="yes"' \
+    'omit_drivers+=" nouveau "' \
+    'omit_dracutmodules+=" network network-manager lvm mdraid multipath fips iscsi nfs cifs qemu qemu-net "' \
+    > /etc/dracut.conf.d/01-lean-initramfs.conf
+
+# 1. Rebuild do initramfs enxuto (apenas com o kernel-core/modules básico)
+RUN kver="$(rpm -q kernel-core --queryformat '%{VERSION}-%{RELEASE}.%{ARCH}\n' | sort -V | tail -n 1)" && \
+    dracut -vf --compress "zstd -19 -T0" "/usr/lib/modules/${kver}/initramfs.img" "${kver}"
+
+# 2. Instalação dos módulos extras para o userspace (fora do initramfs) e limpeza final
 RUN kver="$(rpm -q kernel-core --queryformat '%{VERSION}-%{RELEASE}.%{ARCH}\n' | sort -V | tail -n 1)" && \
     dnf install --setopt=tsflags=nodocs -y "kernel-modules-extra-${kver}" && \
-    dracut -vf --zstd "/usr/lib/modules/${kver}/initramfs.img" "${kver}" && \
     dnf clean all && \
     rm -rf /var/cache/dnf /var/lib/dnf /var/log/* /tmp/* /var/tmp/*
 
