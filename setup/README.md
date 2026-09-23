@@ -30,7 +30,7 @@ Para manter a raiz do sistema (Fedora RYnux) limpa e estável, todo o fluxo de t
 - **Perfil de Uso:** O ambiente é configurado com foco no fluxo de trabalho de **Rafael Yuri** (criador da distro), incluindo ferramentas específicas para Engenharia Química, CFD (Dinâmica dos Fluidos) e desenvolvimento C++/Qt. Usuários com outras necessidades devem editar o script `10-distrobox-dev-env.sh` antes da execução.
 
 ### Conteúdo do Container:
-- **IDEs:** Windsurf e Qt Creator.
+- **IDEs:** VS Code e Qt Creator.
 - **Linguagens:** Arsenal completo C++ (GCC, Clang, OpenMP, MPI) e Python 3 (Pandas, Matplotlib, Aiohttp).
 - **Bibliotecas Científicas:** OpenCV, Eigen3 (Álgebra Linear), FFTW3 (transformada rápida de Fourier), Boost e Gmsh (Geração de malhas).
 - **Gráficos:** Gnuplot.
