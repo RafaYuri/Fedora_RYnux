@@ -7,6 +7,7 @@ LABEL containers.bootc="1"
 
 # Instalando o KDE Desktop com otimização de cache para nuvem
 RUN --mount=type=cache,dst=/var/cache/dnf \
+    dnf install --setopt=tsflags=nodocs -y 'dnf5-command(copr)' && \
     dnf copr enable -y @kdesig/kde-beta && \
     dnf update -y && \
     dnf install --setopt=tsflags=nodocs -y @kde-desktop --exclude=kcharselect,krfb,kwrite,akonadi* && \
