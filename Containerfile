@@ -7,9 +7,11 @@ LABEL containers.bootc="1"
 
 # Instalando o KDE Desktop com otimização de cache para nuvem
 RUN --mount=type=cache,dst=/var/cache/dnf \
-    dnf copr enable -y @kdesig/kde-beta && \
     dnf update -y && \
     dnf install --setopt=tsflags=nodocs -y @kde-desktop --exclude=kcharselect,krfb,kwrite,akonadi* && \
+    dnf clean all && \
+    dnf copr enable -y @kdesig/kde-beta && \
+    dnf update -y --refresh && \
     dnf clean all
 
 # Copia a pasta de listas de pacotes para dentro da imagem temporariamente
