@@ -22,11 +22,6 @@ RUN --mount=type=cache,dst=/var/cache/dnf \
     dnf remove -y PackageKit plasma-browser-integration firewall-config && \
     dnf clean all
 
-# Instalando development tools
-RUN --mount=type=cache,dst=/var/cache/dnf \
-    dnf group install --setopt=tsflags=nodocs -y development-tools && \
-    dnf clean all
-
 # Instalando repositórios RPM Fusion, codecs multimídia e removendo o repositório
 RUN --mount=type=cache,dst=/var/cache/dnf \
     dnf install --setopt=tsflags=nodocs -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \

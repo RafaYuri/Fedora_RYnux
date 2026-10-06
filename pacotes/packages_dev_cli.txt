@@ -11,6 +11,8 @@ procps-ng
 file
 
 # Ferramentas de Compilação, C++ e HPC
+gcc-c++
+clang
 cmake
 ninja-build
 gdb
