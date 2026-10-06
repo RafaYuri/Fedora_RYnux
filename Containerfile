@@ -120,11 +120,13 @@ RUN mkdir -p /etc/systemd/system/bootc-fetch-apply-updates.service.d/ && \
 # ====================================================================
 RUN printf '%s\n' \
     '#!/bin/bash' \
-    'if [ -f /run/reboot-required ]; then' \
-    '    echo -e "\e[1;36m🔄 Atualização pendente, reinicie para aplicação.\e[0m"' \
+    '[ -t 1 ] || return 0' \
+    'if command -v bootc >/dev/null 2>&1; then' \
+    ' if bootc status --format=json 2>/dev/null | grep -q "\"type\":[[:space:]]*\"staged\""; then' \
+    ' echo -e "\e[1;36m🔄 [Fedora RYnux] Há uma atualização do sistema em espera. Reinicie para aplicá-la.\e[0m"'' fi' \
     'fi' \
-    > /usr/local/bin/bootc-notify.sh && \
-    chmod +x /usr/local/bin/bootc-notify.sh
+    > /etc/profile.d/bootc-notify.sh && \
+    chmod +x /etc/profile.d/bootc-notify.sh
 
 # ====================================================================
 # CONFIGURAÇÃO DE REDE / FIREWALL
