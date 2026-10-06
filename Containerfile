@@ -122,8 +122,9 @@ RUN printf '%s\n' \
     '#!/bin/bash' \
     '[ -t 1 ] || return 0' \
     'if command -v bootc >/dev/null 2>&1; then' \
-    ' if bootc status --format=json 2>/dev/null | grep -q "\"type\":[[:space:]]*\"staged\""; then' \
-    ' echo -e "\e[1;36m🔄 [Fedora RYnux] Há uma atualização do sistema em espera. Reinicie para aplicá-la.\e[0m"'' fi' \
+    '    if bootc status --format=json 2>/dev/null | grep -q "\"type\":[[:space:]]*\"staged\""; then' \
+    '        echo -e "\e[1;36m🔄 [Fedora RYnux] Há uma atualização do sistema em espera. Reinicie para aplicá-la.\e[0m"' \
+    '    fi' \
     'fi' \
     > /etc/profile.d/bootc-notify.sh && \
     chmod +x /etc/profile.d/bootc-notify.sh
