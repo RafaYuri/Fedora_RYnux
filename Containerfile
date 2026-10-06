@@ -1,7 +1,7 @@
 # ====================================================================
 # ESTÁGIO 1: Construção do Sistema
 # ====================================================================
-FROM quay.io/fedora/fedora-bootc:latest AS final
+FROM quay.io/fedora/fedora-bootc:44 AS final
 LABEL ostree.bootable="true"
 LABEL containers.bootc="1"
 
