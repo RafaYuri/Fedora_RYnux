@@ -77,7 +77,7 @@ jobs:
           PRIMARY_IMAGE="${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }}"
           sudo podman run --rm --privileged \
             -v /var/lib/containers:/var/lib/containers \
-            quay.io/fedora/fedora-bootc:45 \
+            quay.io/fedora/fedora-bootc:44 \
             /usr/libexec/bootc-base-imagectl rechunk \
             --max-layers 127 localhost/bootc-raw:latest \
             "${PRIMARY_IMAGE}"

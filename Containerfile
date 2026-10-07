@@ -1,7 +1,7 @@
 # ====================================================================
 # ESTÁGIO 1: Construção do Sistema
 # ====================================================================
-FROM quay.io/fedora/fedora-bootc:45 AS final
+FROM quay.io/fedora/fedora-bootc:44 AS final
 LABEL ostree.bootable="true"
 LABEL containers.bootc="1"
 
@@ -147,7 +147,7 @@ RUN printf '%s\n' \
 
 # 1. Rebuild do initramfs enxuto (apenas com o kernel-core/modules básico)
 RUN kver="$(rpm -q kernel-core --queryformat '%{VERSION}-%{RELEASE}.%{ARCH}\n' | sort -V | tail -n 1)" && \
-    dracut -vf --compress "zstd -9 -T0" "/usr/lib/modules/${kver}/initramfs.img" "${kver}"
+    dracut -vf --compress "zstd -19 -T0" "/usr/lib/modules/${kver}/initramfs.img" "${kver}"
 
 # 2. Instalação dos módulos extras para o userspace (fora do initramfs) e limpeza final
 RUN kver="$(rpm -q kernel-core --queryformat '%{VERSION}-%{RELEASE}.%{ARCH}\n' | sort -V | tail -n 1)" && \
