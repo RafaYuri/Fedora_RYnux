@@ -1,0 +1,4 @@
+kargs = [
+    "vconsole.keymap=br",
+    "rootflags=compress=zstd:1"
+]

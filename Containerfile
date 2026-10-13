@@ -1,7 +1,7 @@
 # ====================================================================
 # ESTÁGIO 1: Construção do Sistema
 # ====================================================================
-FROM quay.io/fedora/fedora-bootc:44 AS final
+FROM quay.io/fedora/fedora-bootc:45 AS final
 LABEL ostree.bootable="true"
 LABEL containers.bootc="1"
 
@@ -21,6 +21,11 @@ RUN --mount=type=cache,dst=/var/cache/dnf \
     grep -v '^#' /tmp/pacotes/packages_apps.txt | tr '\n' ' ' | xargs dnf install --setopt=tsflags=nodocs -y && \
     dnf remove -y PackageKit plasma-browser-integration firewall-config && \
     dnf clean all
+
+# Configuração de compressão BTRFS com zstd
+COPY config/01-args.toml /tmp/sysconfig/
+RUN mv -v /tmp/sysconfig/01-args.toml /usr/lib/bootc/kargs.d/01-args.toml && \
+    rm -rf /tmp/*
 
 # Instalando repositórios RPM Fusion, codecs multimídia e removendo o repositório
 RUN --mount=type=cache,dst=/var/cache/dnf \
