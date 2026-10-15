@@ -63,7 +63,7 @@ jobs:
         run: |
           cat << 'EOF' > Containerfile.installer
           FROM ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }}
-          RUN mkdir -p /var/usrlocal/bin /var/usrlocal/sbin /boot/efi/EFI/fedora && \
+          RUN mkdir -p /var/usrlocal/bin /var/usrlocal/sbin /boot/efi/EFI/fedora /mnt && \
               dnf install -y \
               anaconda \
               anaconda-webui \
