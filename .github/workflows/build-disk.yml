@@ -67,8 +67,9 @@ jobs:
 
       - name: Sincronizar Registro no Blueprint
         run: |
-          # Garante que o kickstart do instalador aponte para o repositório correto (útil em forks)
+          # Atualiza tanto a fonte do payload quanto o kickstart
           sed -i "s|ghcr.io/rafayuri/fedora_rynux:latest|${IMAGE_REGISTRY}/${IMAGE_NAME}:${DEFAULT_TAG}|g" disk_config/iso.toml
+          cat disk_config/iso.toml
 
       - name: Construir ISO com image-builder
         id: build
@@ -84,8 +85,6 @@ jobs:
             build \
             --blueprint /config/iso.toml \
             --output-dir /output \
-            --bootc-ref "${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }}" \
-            --bootc-default-fs btrfs \
             bootc-installer
 
           sudo chown -R ${{ env.USER_UID }}:${{ env.USER_GID }} ./output

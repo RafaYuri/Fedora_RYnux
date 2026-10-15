@@ -1,8 +1,11 @@
 # disk_config/iso.toml
 
+[[containers]]
+source = "ghcr.io/rafayuri/fedora_rynux:latest"
+
 [customizations.installer.kickstart]
 contents = """
-# Define modo gráfico (WebUI é o padrão no Fedora moderno para Workstation/Atomic)
+# Define modo gráfico (WebUI/Anaconda padrão)
 graphical
 
 %post --erroronfail
