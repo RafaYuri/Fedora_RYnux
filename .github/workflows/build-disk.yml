@@ -63,7 +63,8 @@ jobs:
         run: |
           cat << 'EOF' > Containerfile.installer
           FROM ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }}
-          RUN dnf install -y \
+          RUN mkdir -p /var/usrlocal/bin /var/usrlocal/sbin /boot/efi/EFI/fedora && \
+              dnf install -y \
               anaconda \
               anaconda-webui \
               anaconda-install-img-deps \
@@ -71,11 +72,21 @@ jobs:
               anaconda-live \
               dracut-live \
               dracut-network \
+              shim-x64 \
+              grub2-efi-x64 \
+              grub2-efi-x64-cdboot \
+              grub2-pc-modules \
+              grub2-tools \
+              grub2-tools-extra \
+              grub2-tools-minimal \
               squashfs-tools \
               xorriso \
               isomd5sum \
-              grub2-pc-modules \
+              lorax-templates-generic \
               && dnf clean all
+          RUN if [ -d /usr/lib/bootupd/updates/EFI ]; then \
+                cp -r /usr/lib/bootupd/updates/EFI/* /boot/efi/EFI/ ; \
+              fi
           RUN KVER=$(cd /usr/lib/modules && ls -1 | head -n 1) && \
               dracut --no-hostonly --kver "$KVER" --add "dmsquash-live dmsquash-live-ntfs pollcdrom qemu qemu-net" \
               --force "/usr/lib/modules/$KVER/initramfs.img"
