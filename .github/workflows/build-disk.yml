@@ -59,6 +59,29 @@ jobs:
         run: |
           sudo podman pull ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }}
 
+      - name: Preparar Contêiner do Instalador (Anaconda WebUI)
+        run: |
+          cat << 'EOF' > Containerfile.installer
+          FROM ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }}
+          RUN dnf install -y \
+              anaconda \
+              anaconda-webui \
+              anaconda-install-img-deps \
+              anaconda-dracut \
+              anaconda-live \
+              dracut-live \
+              dracut-network \
+              squashfs-tools \
+              xorriso \
+              isomd5sum \
+              grub2-pc-modules \
+              && dnf clean all
+          RUN KVER=$(cd /usr/lib/modules && ls -1 | head -n 1) && \
+              dracut --no-hostonly --kver "$KVER" --add "dmsquash-live dmsquash-live-ntfs pollcdrom qemu qemu-net" \
+              --force "/usr/lib/modules/$KVER/initramfs.img"
+          EOF
+          sudo podman build -f Containerfile.installer -t localhost/rynux-installer:latest .
+
       - name: Construir ISO com osbuild/image-builder
         id: build
         run: |
@@ -69,8 +92,9 @@ jobs:
             -v /var/lib/containers/storage:/var/lib/containers/storage \
             --security-opt label=type:unconfined_t \
             ${{ env.IB_IMAGE }} \
-            build anaconda-iso \
-            --bootc-ref ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }} \
+            build bootc-installer \
+            --bootc-ref localhost/rynux-installer:latest \
+            --bootc-installer-payload-ref ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }} \
             --bootc-default-fs btrfs \
             --blueprint /config/iso.toml \
             --output-dir /output

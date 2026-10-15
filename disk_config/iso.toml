@@ -2,7 +2,11 @@
 
 [customizations.installer.kickstart]
 contents = """
-%post
+# Define modo gráfico (WebUI é o padrão no Fedora moderno para Workstation/Atomic)
+graphical
+
+%post --erroronfail
+# Aponta o bootc para receber atualizações futuras do seu registry no GitHub
 bootc switch --mutate-in-place --transport registry ghcr.io/rafayuri/fedora_rynux:latest
 %end
 """
@@ -10,13 +14,14 @@ bootc switch --mutate-in-place --transport registry ghcr.io/rafayuri/fedora_rynu
 [customizations.installer.modules]
 enable = [
   "org.fedoraproject.Anaconda.Modules.Storage",
-  "org.fedoraproject.Anaconda.Modules.Runtime"
+  "org.fedoraproject.Anaconda.Modules.Runtime",
+  "org.fedoraproject.Anaconda.Modules.Network",
+  "org.fedoraproject.Anaconda.Modules.Users",
+  "org.fedoraproject.Anaconda.Modules.Timezone",
+  "org.fedoraproject.Anaconda.Modules.Locale"
 ]
 disable = [
-  "org.fedoraproject.Anaconda.Modules.Network",
   "org.fedoraproject.Anaconda.Modules.Security",
   "org.fedoraproject.Anaconda.Modules.Services",
-  "org.fedoraproject.Anaconda.Modules.Users",
-  "org.fedoraproject.Anaconda.Modules.Subscription",
-  "org.fedoraproject.Anaconda.Modules.Timezone"
+  "org.fedoraproject.Anaconda.Modules.Subscription"
 ]
