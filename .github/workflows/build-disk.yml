@@ -70,6 +70,41 @@ jobs:
           # Garante que o kickstart do instalador aponte para o repositório correto (útil em forks)
           sed -i "s|ghcr.io/rafayuri/fedora_rynux:latest|${IMAGE_REGISTRY}/${IMAGE_NAME}:${DEFAULT_TAG}|g" disk_config/iso.toml
 
+      - name: Preparar Estrutura EFI para o image-builder
+        run: |
+          cat << 'EOF' > Containerfile.iso
+          FROM ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }}
+
+          # Garante ferramentas e binários de bootloader para UEFI e BIOS
+          RUN dnf install -y --setopt=tsflags=nodocs shim-x64 grub2-efi-x64 grub2-efi-x64-cdboot grub2-pc-modules && dnf clean all || true
+
+          # Popula /boot/efi/EFI/fedora conforme o contrato esperado pelo osbuild (org.osbuild.grub2.iso)
+          RUN set -eux; \
+              mkdir -p /boot/efi/EFI/fedora; \
+              if [ -d /usr/lib/bootupd/updates/EFI/fedora ]; then \
+                  cp -a /usr/lib/bootupd/updates/EFI/fedora/* /boot/efi/EFI/fedora/ ; \
+              elif [ -d /usr/lib/bootupd/updates/EFI ]; then \
+                  cp -a /usr/lib/bootupd/updates/EFI/* /boot/efi/EFI/ ; \
+              fi; \
+              if [ -d /usr/lib/efi/shim ]; then \
+                  find /usr/lib/efi/shim -name "shimx64.efi" -exec cp {} /boot/efi/EFI/fedora/ \; 2>/dev/null || true; \
+              fi; \
+              for efi in shimx64.efi mmx64.efi gcdx64.efi grubx64.efi; do \
+                  if [ ! -f "/boot/efi/EFI/fedora/${efi}" ]; then \
+                      src="$(find /usr -type f -name "${efi}" 2>/dev/null | head -n 1 || true)"; \
+                      if [ -n "${src}" ]; then \
+                          cp "${src}" "/boot/efi/EFI/fedora/${efi}"; \
+                      fi; \
+                  fi; \
+              done; \
+              if [ ! -f /boot/efi/EFI/fedora/gcdx64.efi ] && [ -f /boot/efi/EFI/fedora/grubx64.efi ]; then \
+                  cp /boot/efi/EFI/fedora/grubx64.efi /boot/efi/EFI/fedora/gcdx64.efi; \
+              fi; \
+              test -f /boot/efi/EFI/fedora/shimx64.efi; \
+              ls -la /boot/efi/EFI/fedora/
+          EOF
+          sudo podman build -f Containerfile.iso -t localhost/rynux-bootc-iso:latest .
+
       - name: Construir ISO com image-builder
         id: build
         run: |
@@ -84,7 +119,7 @@ jobs:
             build \
             --blueprint /config/iso.toml \
             --output-dir /output \
-            --bootc-ref ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }} \
+            --bootc-ref localhost/rynux-bootc-iso:latest \
             --bootc-default-fs btrfs \
             bootc-generic-iso
 
