@@ -1,6 +1,6 @@
 label: "Fedora-RYnux"
 grub2:
-  default: "0"
+  default: 0
   timeout: 10
   entries:
     - name: "Iniciar Fedora RYnux"
