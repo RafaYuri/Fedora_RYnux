@@ -84,7 +84,6 @@ jobs:
             -v /var/lib/containers/storage:/var/lib/containers/storage \
             ${{ env.IB_IMAGE }} \
             build \
-            --distro bootc \
             --bootc-ref localhost/rynux-bootc-iso:latest \
             --output-dir /output \
             bootc-generic-iso
