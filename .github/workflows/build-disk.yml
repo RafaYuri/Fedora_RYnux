@@ -5,8 +5,8 @@ on:
     branches:
       - main
     paths:
-      - './disk_config/iso.toml'
-      - './.github/workflows/build-disk.yml'
+      - 'disk_config/iso.toml'
+      - '.github/workflows/build-disk.yml'
 
 env:
   IMAGE_NAME: ${{ github.event.repository.name }} 
@@ -44,84 +44,57 @@ jobs:
           sudo rm -rf /opt/ghc
           sudo rm -rf "/usr/local/share/boost"
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          sudo docker system prune -af || true
           df -h
 
       - name: Clonar Repositório
         uses: actions/checkout@v7
 
-      - name: Desativar AppArmor
+      - name: Configurar AppArmor & User Namespaces
         run: |
           sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0 || true
           sudo aa-teardown || true
           sudo systemctl stop apparmor || true
 
+      - name: Login no GHCR (Podman)
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | sudo podman login \
+            -u "${{ github.actor }}" --password-stdin ghcr.io
+
       - name: Baixar Imagem Base (bootc)
         run: |
           sudo podman pull ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }}
 
-      - name: Preparar Contêiner do Instalador (Anaconda WebUI)
+      - name: Sincronizar Registro no Blueprint
         run: |
-          cat << 'EOF' > Containerfile.installer
-          FROM ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }}
-          RUN mkdir -p /var/usrlocal/bin /var/usrlocal/sbin /boot/efi/EFI/fedora /mnt && \
-              dnf install -y \
-              anaconda \
-              anaconda-webui \
-              anaconda-install-img-deps \
-              anaconda-dracut \
-              anaconda-live \
-              dracut-live \
-              dracut-network \
-              shim-x64 \
-              grub2-efi-x64 \
-              grub2-efi-x64-cdboot \
-              grub2-pc-modules \
-              grub2-tools \
-              grub2-tools-extra \
-              grub2-tools-minimal \
-              squashfs-tools \
-              xorriso \
-              isomd5sum \
-              lorax-templates-generic \
-              && dnf clean all
-          RUN if [ -d /usr/lib/bootupd/updates/EFI ]; then \
-                cp -r /usr/lib/bootupd/updates/EFI/* /boot/efi/EFI/ ; \
-              fi
-          RUN set -eux; \
-              mkdir -p /boot/efi/EFI/fedora; \
-              for efi in shimx64.efi mmx64.efi gcdx64.efi; do \
-                [ -f "/boot/efi/EFI/fedora/${efi}" ] && continue; \
-                src="$(find /usr -type f -name "${efi}" 2>/dev/null | head -n 1 || true)"; \
-                if [ -z "${src}" ] && [ "${efi}" = "gcdx64.efi" ]; then \
-                  src="$(find /usr -type f -name "grubx64.efi" 2>/dev/null | head -n 1 || true)"; \
-                fi; \
-                test -n "${src}"; \
-                install -m 0644 "${src}" "/boot/efi/EFI/fedora/${efi}"; \
-              done
-          RUN KVER=$(cd /usr/lib/modules && ls -1 | head -n 1) && \
-              dracut --no-hostonly --kver "$KVER" --add "dmsquash-live dmsquash-live-ntfs pollcdrom qemu qemu-net" \
-              --force "/usr/lib/modules/$KVER/initramfs.img"
-          EOF
-          sudo podman build -f Containerfile.installer -t localhost/rynux-installer:latest .
+          # Garante que o kickstart do instalador aponte para o repositório correto (útil em forks)
+          sed -i "s|ghcr.io/rafayuri/fedora_rynux:latest|${IMAGE_REGISTRY}/${IMAGE_NAME}:${DEFAULT_TAG}|g" disk_config/iso.toml
 
-      - name: Construir ISO com osbuild/image-builder
+      - name: Construir ISO com image-builder
         id: build
         run: |
           mkdir -p ./output
           sudo podman run --rm --privileged \
+            --pull=newer \
+            --security-opt label=type:unconfined_t \
             -v "$(pwd)/output:/output" \
             -v "$(pwd)/disk_config:/config:ro" \
             -v /var/lib/containers/storage:/var/lib/containers/storage \
-            --security-opt label=type:unconfined_t \
             ${{ env.IB_IMAGE }} \
-            build bootc-installer \
-            --bootc-ref localhost/rynux-installer:latest \
-            --bootc-installer-payload-ref ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }} \
-            --bootc-default-fs btrfs \
+            build \
             --blueprint /config/iso.toml \
-            --output-dir /output
+            --output-dir /output \
+            --bootc-ref ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }} \
+            --bootc-default-fs btrfs \
+            bootc-generic-iso
+
           sudo chown -R ${{ env.USER_UID }}:${{ env.USER_GID }} ./output
           echo "output-directory=./output" >> "${GITHUB_OUTPUT}"
+
+      - name: Verificar Arquivos Gerados e Checksums
+        run: |
+          ls -lh ./output
+          find ./output -type f -name "*.iso" -exec sha256sum {} + | tee ./output/SHA256SUMS
 
       - name: Enviar ISO para os Artefatos
         if: github.event_name != 'pull_request'
