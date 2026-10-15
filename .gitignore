@@ -4,4 +4,3 @@ bootiso/
 manifest-iso.json
 cosign.key
 *.ociarchive
-ANALISE_E_SUGESTOES.md

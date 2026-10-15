@@ -5,7 +5,8 @@ on:
     branches:
       - main
     paths:
-      - 'disk_config/iso.toml'
+      - 'iso.yaml'
+      - 'Containerfile.iso'
       - '.github/workflows/build-disk.yml'
 
 env:
@@ -65,11 +66,12 @@ jobs:
         run: |
           sudo podman pull ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }}
 
-      - name: Sincronizar Registro no Blueprint
+      - name: Construir Camada Intermediária da ISO
         run: |
-          # Atualiza tanto a fonte do payload quanto o kickstart
-          sed -i "s|ghcr.io/rafayuri/fedora_rynux:latest|${IMAGE_REGISTRY}/${IMAGE_NAME}:${DEFAULT_TAG}|g" disk_config/iso.toml
-          cat disk_config/iso.toml
+          sudo podman build \
+            --build-arg BASE_IMAGE="${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }}" \
+            -f Containerfile.iso \
+            -t localhost/rynux-bootc-iso:latest .
 
       - name: Construir ISO com image-builder
         id: build
@@ -79,13 +81,13 @@ jobs:
             --pull=newer \
             --security-opt label=type:unconfined_t \
             -v "$(pwd)/output:/output" \
-            -v "$(pwd)/disk_config:/config:ro" \
             -v /var/lib/containers/storage:/var/lib/containers/storage \
             ${{ env.IB_IMAGE }} \
             build \
-            --blueprint /config/iso.toml \
+            --distro bootc \
+            --bootc-ref localhost/rynux-bootc-iso:latest \
             --output-dir /output \
-            bootc-installer
+            bootc-generic-iso
 
           sudo chown -R ${{ env.USER_UID }}:${{ env.USER_GID }} ./output
           echo "output-directory=./output" >> "${GITHUB_OUTPUT}"
