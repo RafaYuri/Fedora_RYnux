@@ -1,15 +1,21 @@
 ARG BASE_IMAGE=ghcr.io/rafayuri/fedora_rynux:latest
 FROM ${BASE_IMAGE}
 
+# 1. Instala dependências do osbuild (Lorax/Mako), Anaconda runtime e ferramentas de mídia ótica
 RUN dnf install -y --setopt=tsflags=nodocs \
     shim-x64 \
     grub2-efi-x64-cdboot \
     grub2-pc-modules \
     grub2-tools \
     xorriso \
-    isomd5sum && \
+    isomd5sum \
+    squashfs-tools \
+    python3-mako \
+    anaconda-core \
+    anaconda-tui && \
     dnf clean all
 
+# 2. Configura a estrutura EFI de boot
 RUN set -eux; \
     mkdir -p /boot/efi/EFI/fedora; \
     GCD_BIN="$(find /usr -name "gcdx64.efi" 2>/dev/null | head -n 1)"; \
@@ -22,5 +28,3 @@ RUN set -eux; \
     test -f /boot/efi/EFI/fedora/gcdx64.efi; \
     test -f /boot/efi/EFI/fedora/grubx64.efi; \
     test -f /boot/efi/EFI/fedora/shimx64.efi
-
-COPY iso.yaml /usr/lib/bootc-image-builder/iso.yaml
