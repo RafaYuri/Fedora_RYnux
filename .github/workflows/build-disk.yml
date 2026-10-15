@@ -1,6 +1,6 @@
 name: Construir Imagens de Disco
 on:
-  workflow_dispatch: # Permite disparar a geração da ISO manualmente
+  workflow_dispatch:
   pull_request:
     branches:
       - main
@@ -84,9 +84,9 @@ jobs:
             build \
             --blueprint /config/iso.toml \
             --output-dir /output \
-            --bootc-ref localhost/rynux-bootc-iso:latest \
+            --bootc-ref "${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }}" \
             --bootc-default-fs btrfs \
-            anaconda-iso
+            bootc-installer
 
           sudo chown -R ${{ env.USER_UID }}:${{ env.USER_GID }} ./output
           echo "output-directory=./output" >> "${GITHUB_OUTPUT}"
