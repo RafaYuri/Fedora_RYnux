@@ -87,6 +87,17 @@ jobs:
           RUN if [ -d /usr/lib/bootupd/updates/EFI ]; then \
                 cp -r /usr/lib/bootupd/updates/EFI/* /boot/efi/EFI/ ; \
               fi
+          RUN set -eux; \
+              mkdir -p /boot/efi/EFI/fedora; \
+              for efi in shimx64.efi mmx64.efi gcdx64.efi; do \
+                [ -f "/boot/efi/EFI/fedora/${efi}" ] && continue; \
+                src="$(find /usr -type f -name "${efi}" 2>/dev/null | head -n 1 || true)"; \
+                if [ -z "${src}" ] && [ "${efi}" = "gcdx64.efi" ]; then \
+                  src="$(find /usr -type f -name "grubx64.efi" 2>/dev/null | head -n 1 || true)"; \
+                fi; \
+                test -n "${src}"; \
+                install -m 0644 "${src}" "/boot/efi/EFI/fedora/${efi}"; \
+              done
           RUN KVER=$(cd /usr/lib/modules && ls -1 | head -n 1) && \
               dracut --no-hostonly --kver "$KVER" --add "dmsquash-live dmsquash-live-ntfs pollcdrom qemu qemu-net" \
               --force "/usr/lib/modules/$KVER/initramfs.img"
