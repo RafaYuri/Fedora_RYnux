@@ -85,9 +85,10 @@ jobs:
             ${{ env.IB_IMAGE }} \
             build \
             --bootc-ref localhost/rynux-bootc-iso:latest \
+            --bootc-installer-payload-ref "${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }}" \
             --bootc-default-fs btrfs \
             --output-dir /output \
-            bootc-generic-iso
+            bootc-installer
 
           sudo chown -R ${{ env.USER_UID }}:${{ env.USER_GID }} ./output
           echo "output-directory=./output" >> "${GITHUB_OUTPUT}"

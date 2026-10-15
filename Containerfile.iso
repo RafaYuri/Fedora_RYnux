@@ -1,27 +1,26 @@
 ARG BASE_IMAGE=ghcr.io/rafayuri/fedora_rynux:latest
 FROM ${BASE_IMAGE}
 
-# 1. Instala utilitários de geração de ISO e os módulos de CD-boot do GRUB
 RUN dnf install -y --setopt=tsflags=nodocs \
     shim-x64 \
     grub2-efi-x64-cdboot \
     grub2-pc-modules \
     grub2-tools \
-    squashfs-tools \
     xorriso \
-    isomd5sum \
-    python3 && \
+    isomd5sum && \
     dnf clean all
 
-# 2. Configura os binários EFI no caminho padrão (/boot/efi/EFI/fedora)
-# IMPORTANTE: gcdx64.efi é o GRUB com suporte nativo a ISO9660. Não o sobrescreva com grubx64.efi!
 RUN set -eux; \
     mkdir -p /boot/efi/EFI/fedora; \
-    cp $(find /usr -name "gcdx64.efi" | head -n 1) /boot/efi/EFI/fedora/gcdx64.efi; \
-    cp $(find /usr/lib/efi/shim -name "shimx64.efi" 2>/dev/null | head -n 1 || find /usr -name "shimx64.efi" | head -n 1) /boot/efi/EFI/fedora/shimx64.efi; \
-    cp $(find /usr/lib/efi/shim -name "mmx64.efi" 2>/dev/null | head -n 1 || find /usr -name "mmx64.efi" | head -n 1) /boot/efi/EFI/fedora/mmx64.efi; \
+    GCD_BIN="$(find /usr -name "gcdx64.efi" 2>/dev/null | head -n 1)"; \
+    SHIM_BIN="$(find /usr/lib/efi/shim -name "shimx64.efi" 2>/dev/null | head -n 1 || find /usr -name "shimx64.efi" | head -n 1)"; \
+    MM_BIN="$(find /usr/lib/efi/shim -name "mmx64.efi" 2>/dev/null | head -n 1 || find /usr -name "mmx64.efi" | head -n 1)"; \
+    cp "${GCD_BIN}" /boot/efi/EFI/fedora/gcdx64.efi; \
+    cp "${GCD_BIN}" /boot/efi/EFI/fedora/grubx64.efi; \
+    cp "${SHIM_BIN}" /boot/efi/EFI/fedora/shimx64.efi; \
+    cp "${MM_BIN}" /boot/efi/EFI/fedora/mmx64.efi; \
     test -f /boot/efi/EFI/fedora/gcdx64.efi; \
+    test -f /boot/efi/EFI/fedora/grubx64.efi; \
     test -f /boot/efi/EFI/fedora/shimx64.efi
 
-# 3. Injeta a configuração da ISO no caminho do contrato do bootc
 COPY iso.yaml /usr/lib/bootc-image-builder/iso.yaml

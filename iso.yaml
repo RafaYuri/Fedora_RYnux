@@ -3,6 +3,6 @@ grub2:
   default: 0
   timeout: 10
   entries:
-    - name: "Iniciar Fedora RYnux"
-      linux: "search --no-floppy --set=root --label Fedora-RYnux\nlinux /images/pxeboot/vmlinuz root=live:CDLABEL=Fedora-RYnux rd.live.image quiet"
+    - name: "Instalar Fedora RYnux"
+      linux: "/images/pxeboot/vmlinuz quiet"
       initrd: "/images/pxeboot/initrd.img"
