@@ -1,4 +1,4 @@
-name: Build disk images
+name: Construir Imagens de Disco
 on:
   workflow_dispatch: # Permite disparar a geração da ISO manualmente
   pull_request:
@@ -12,7 +12,7 @@ env:
   IMAGE_NAME: ${{ github.event.repository.name }} 
   IMAGE_REGISTRY: "ghcr.io/${{ github.repository_owner }}"
   DEFAULT_TAG: "latest"
-  BIB_IMAGE: "quay.io/centos-bootc/bootc-image-builder:latest"
+  IB_IMAGE: "ghcr.io/osbuild/image-builder-cli:latest"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
@@ -20,7 +20,7 @@ concurrency:
 
 jobs:
   build:
-    name: Build ISO Image
+    name: Gerar Imagem ISO
     runs-on: ubuntu-26.04
     permissions:
       contents: read
@@ -28,7 +28,7 @@ jobs:
       id-token: write
 
     steps:
-      - name: Prepare environment
+      - name: Preparar Variáveis de Ambiente
         run: |
           USER_UID=$(id -u)
           USER_GID=$(id -g)
@@ -37,7 +37,7 @@ jobs:
           echo "USER_UID=${USER_UID}" >> ${GITHUB_ENV}
           echo "USER_GID=${USER_GID}" >> ${GITHUB_ENV}
 
-      - name: Liberar Espaço em Disco (Maximize Space)
+      - name: Liberar Espaço em Disco
         run: |
           sudo rm -rf /usr/share/dotnet
           sudo rm -rf /usr/local/lib/android
@@ -46,27 +46,38 @@ jobs:
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
           df -h
 
-      - name: Checkout
+      - name: Clonar Repositório
         uses: actions/checkout@v7
 
-      - name: Disable AppArmor
+      - name: Desativar AppArmor
         run: |
           sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0 || true
           sudo aa-teardown || true
           sudo systemctl stop apparmor || true
-          
-      - name: Build disk images
-        id: build
-        uses: osbuild/bootc-image-builder-action@main
-        with:
-          builder-image: ${{ env.BIB_IMAGE }}
-          config-file: './disk_config/iso.toml'
-          image: ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }}
-          chown: ${{ env.USER_UID }}:${{ env.USER_GID }}
-          types: "anaconda-iso"
-          rootfs: btrfs
 
-      - name: Upload ISO to Job Artifacts
+      - name: Baixar Imagem Base (bootc)
+        run: |
+          sudo podman pull ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }}
+
+      - name: Construir ISO com osbuild/image-builder
+        id: build
+        run: |
+          mkdir -p ./output
+          sudo podman run --rm --privileged \
+            -v "$(pwd)/output:/output" \
+            -v "$(pwd)/disk_config:/config:ro" \
+            -v /var/lib/containers/storage:/var/lib/containers/storage \
+            --security-opt label=type:unconfined_t \
+            ${{ env.IB_IMAGE }} \
+            build anaconda-iso \
+            --bootc-ref ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }} \
+            --bootc-default-fs btrfs \
+            --blueprint /config/iso.toml \
+            --output-dir /output
+          sudo chown -R ${{ env.USER_UID }}:${{ env.USER_GID }} ./output
+          echo "output-directory=./output" >> "${GITHUB_OUTPUT}"
+
+      - name: Enviar ISO para os Artefatos
         if: github.event_name != 'pull_request'
         uses: actions/upload-artifact@v7
         with:
