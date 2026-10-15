@@ -69,6 +69,8 @@ samba-winbind-clients
 samba-winbind-modules
 setools-console
 squashfs-tools
+isomd5sum
+xorriso
 symlinks
 tcpdump
 tesseract-devel

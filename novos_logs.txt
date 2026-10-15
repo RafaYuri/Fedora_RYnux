@@ -1,0 +1,406 @@
+Run mkdir -p ./output
+Trying to pull ghcr.io/osbuild/image-builder-cli:latest...
+Getting image source signatures
+Copying blob sha256:645e4ac70f28a33356f867f89f3f0b32893b7798e56abcf929c682acb49f505f
+Copying blob sha256:46f99d8098d2f7387628fa935bad3cb34cc8b1dc49b909fd7ab0c4d16ff03f91
+Copying blob sha256:73a3a22290f57cbbecdd47b8108f340fd6cc7da38e4e24b6b7609ee88d4ded82
+Copying blob sha256:c44c17d2af19f2b6c12072fa5ccbff179d179fe18cdca66796b1822ff15cd5f7
+Copying blob sha256:6c37817995db8f12166c936cabc71bf4a2559cd4fb475e214cdd3da986310ffc
+Copying config sha256:5c5657a7f05cd304514d66f9b741ff24918238ee7a058ea8cb8d908cac52ed22
+Writing manifest to image destination
+Manifest generation step
+Building manifest for bootc-based-bootc-generic-iso
+time="2026-10-15T03:34:51Z" level=info msg="Not using native diff for overlay, this may cause degraded performance for building images: kernel has CONFIG_OVERLAY_FS_REDIRECT_DIR enabled"
+time="2026-10-15T03:34:51Z" level=info msg="Not using native diff for overlay, this may cause degraded performance for building images: kernel has CONFIG_OVERLAY_FS_REDIRECT_DIR enabled"
+Image building step
+starting -Pipeline source org.osbuild.containers-storage: 4a260c9bd3f0e4a2fd514d7228db35fd88c7a9e55faa16277fa37c4392549724
+Build
+  root: <host>
+Pipeline build: 2ae964399944ca071a599f7e765c4029ed775ffbd05c1c96cb4ffc30888d6a74
+Build
+  root: <host>
+  runner: org.osbuild.fedora38 (org.osbuild.fedora38)
+org.osbuild.container-deploy: f6e47868104133bddca551b677bf1dcf9a0a9652c55e57fdeb14367bbfc91228 {
+  "remove-signatures": true
+}
+d40754450533bdb835927f88b6f63b5dd2a6e34a9be5f03197b726278fa3f49e
+⏱  Duration: 164.29s
+org.osbuild.selinux: 2ae964399944ca071a599f7e765c4029ed775ffbd05c1c96cb4ffc30888d6a74 {
+  "file_contexts": "etc/selinux/targeted/contexts/files/file_contexts",
+  "exclude_paths": [
+    "/sysroot"
+  ],
+  "labels": {
+    "/usr/bin/mount": "system_u:object_r:install_exec_t:s0",
+    "/usr/bin/ostree": "system_u:object_r:install_exec_t:s0",
+    "/usr/bin/umount": "system_u:object_r:install_exec_t:s0"
+  }
+}
+⏱  Duration: 9.61s
+Pipeline efiboot-tree: ddcc8ae358200103b7821efdb4a59cbe483705265061d24cd7bf289393634aa5
+Build
+  root: 2ae964399944ca071a599f7e765c4029ed775ffbd05c1c96cb4ffc30888d6a74
+  runner: org.osbuild.fedora44 (org.osbuild.fedora38)
+org.osbuild.grub2.iso: ddcc8ae358200103b7821efdb4a59cbe483705265061d24cd7bf289393634aa5 {
+  "product": {
+    "name": "Fedora RYnux",
+    "version": "44"
+  },
+  "kernel": {
+    "dir": "/images/pxeboot",
+    "opts": [
+      "root=live:CDLABEL=Fedora-S-dvd-x86_64-44",
+      "rd.live.image",
+      "quiet",
+      "rhgb",
+      "enforcing=0"
+    ]
+  },
+  "isolabel": "Fedora-S-dvd-x86_64-44",
+  "architectures": [
+    "X64"
+  ],
+  "vendor": "fedora",
+  "troubleshooting": false,
+  "test": false,
+  "install": true
+}
+Failed to create directory or subvolume "/usr/local/sbin": Read-only file system
+kernel dir at /images/pxeboot
+⏱  Duration: 1.33s
+Pipeline os-tree: 9bb77d961c78af704df41e12d4970791e0d64e77c7f0d181ab00a7b75b8f8319
+Build
+  root: 2ae964399944ca071a599f7e765c4029ed775ffbd05c1c96cb4ffc30888d6a74
+  runner: org.osbuild.fedora44 (org.osbuild.fedora38)
+org.osbuild.container-deploy: 9bb77d961c78af704df41e12d4970791e0d64e77c7f0d181ab00a7b75b8f8319 {
+  "remove-signatures": true
+}
+Failed to create directory or subvolume "/usr/local/sbin": Read-only file system
+d40754450533bdb835927f88b6f63b5dd2a6e34a9be5f03197b726278fa3f49e
+⏱  Duration: 172.62s
+Pipeline bootiso-tree: 60840712c851f1af94bff8bed6d16d36cd419118650a1785922aba09a59a7759
+Build
+  root: 2ae964399944ca071a599f7e765c4029ed775ffbd05c1c96cb4ffc30888d6a74
+  runner: org.osbuild.fedora44 (org.osbuild.fedora38)
+org.osbuild.mkdir: 7a5cee470a818b82d114c8300ac5707efc806b624cecb7c21b8417fcb8237fd4 {
+  "paths": [
+    {
+      "path": "/images"
+    },
+    {
+      "path": "/images/pxeboot"
+    },
+    {
+      "path": "/LiveOS"
+    }
+  ]
+}
+Failed to create directory or subvolume "/usr/local/sbin": Read-only file system
+⏱  Duration: 0.70s
+org.osbuild.copy: 1bc843bffc9a619a90640d0ee069e55b43118b2668a7e4c76d51ffdd709a634b {
+  "paths": [
+    {
+      "from": "input://tree/lib/modules/7.2.10-200.fc44.x86_64/vmlinuz",
+      "to": "tree:///images/pxeboot/vmlinuz"
+    },
+    {
+      "from": "input://tree/lib/modules/7.2.10-200.fc44.x86_64/initramfs.img",
+      "to": "tree:///images/pxeboot/initrd.img"
+    }
+  ]
+}
+Failed to create directory or subvolume "/usr/local/sbin": Read-only file system
+copying '/run/osbuild/inputs/tree/lib/modules/7.2.10-200.fc44.x86_64/vmlinuz' -> '/run/osbuild/tree/images/pxeboot/vmlinuz'
+copying '/run/osbuild/inputs/tree/lib/modules/7.2.10-200.fc44.x86_64/initramfs.img' -> '/run/osbuild/tree/images/pxeboot/initrd.img'
+⏱  Duration: 0.70s
+org.osbuild.chmod: 63184235aedd068174e138b958abcbbd085760bf90e1463aa30a11f9c3c4b837 {
+  "items": {
+    "/images/pxeboot/initrd.img": {
+      "mode": "0644"
+    },
+    "/images/pxeboot/vmlinuz": {
+      "mode": "0644"
+    }
+  }
+}
+Failed to create directory or subvolume "/usr/local/sbin": Read-only file system
+⏱  Duration: 0.39s
+org.osbuild.squashfs: ff08db28879ac44595e40c2fe35a6ce12fba239072ae1959061021d7fa5626af {
+  "filename": "LiveOS/squashfs.img",
+  "exclude_paths": [
+    "boot/efi/.*",
+    "boot/grub2/.*",
+    "boot/config-.*",
+    "boot/initramfs-.*",
+    "boot/loader/.*",
+    "boot/symvers-.*",
+    "boot/System.map-.*",
+    "usr/lib/sysimage/rpm/.*",
+    "var/lib/rpm/.*",
+    "var/lib/yum/.*",
+    "var/lib/dnf/.*"
+  ],
+  "compression": {
+    "method": "zstd"
+  }
+}
+Failed to create directory or subvolume "/usr/local/sbin": Read-only file system
+Parallel mksquashfs: Using 4 processors
+Creating 4.0 filesystem on /run/osbuild/tree/LiveOS/squashfs.img, block size 131072.
+[/                                                           ]     0/41493   0%
+[===\                                                      ]  23000/368289   6%
+[===/                                                      ]  23800/368289   6%
+[===/                                                      ]  25800/368289   7%
+[==========/                                               ]  67000/368289  18%
+[===================-                                      ] 125300/368289  34%
+[====================\                                     ] 133900/368289  36%
+[========================/                                 ] 155300/368289  42%
+[===========================/                              ] 175500/368289  47%
+[======================================/                   ] 247300/368289  67%
+[===========================================\              ] 282900/368289  76%
+[============================================/             ] 287200/368289  77%
+[=============================================|            ] 295500/368289  80%
+[========================================================/ ] 368200/368289  99%
+[=========================================================-] 368289/368289 100%
+Exportable Squashfs 4.0 filesystem, zstd compressed, data block size 131072
+	compressed data, compressed metadata, compressed fragments,
+	compressed xattrs, compressed ids
+	duplicates are removed
+Filesystem size 3546384.51 Kbytes (3463.27 Mbytes)
+	39.64% of uncompressed filesystem size (8945880.41 Kbytes)
+Inode table size 3002253 bytes (2931.89 Kbytes)
+	19.14% of uncompressed inode table size (15684014 bytes)
+Directory table size 11477887 bytes (11208.87 Kbytes)
+	33.07% of uncompressed directory table size (34709830 bytes)
+Xattr table size 85 bytes (0.08 Kbytes)
+	19.32% of uncompressed xattr table size (440 bytes)
+Number of duplicate files found 163593
+Number of inodes 353278
+Number of files 319010
+Number of fragments 10801
+Number of symbolic links 15394
+Number of device nodes 0
+Number of fifo nodes 0
+Number of socket nodes 0
+Number of directories 18874
+Number of hard-links 195656
+Number of ids (unique uids + gids) 24
+Number of uids 12
+	root (0)
+	rtkit (974)
+	lp (4)
+	unknown (959)
+	unknown (966)
+	unknown (958)
+	systemd-timesync (969)
+	wsdd (967)
+	qemu (107)
+	usbmuxd (113)
+	tss (59)
+	abrt (173)
+Number of gids 22
+	root (0)
+	systemd-oom (970)
+	lp (7)
+	rtkit (974)
+	brlapi (998)
+	printadmin (993)
+	sys (3)
+	unknown (959)
+	unknown (966)
+	unknown (958)
+	utmp (22)
+	unknown (953)
+	stapusr (156)
+	systemd-timesync (969)
+	unknown (960)
+	wsdd (967)
+	qemu (107)
+	usbmuxd (113)
+	geoclue (984)
+	unknown (964)
+	wbpriv (88)
+	abrt (173)
+⏱  Duration: 366.90s
+org.osbuild.grub2.iso.legacy: 5ab05449fca060bce164f4db75fec5e77f4375030d50116c9cb78949ed67e30b {
+  "product": {
+    "name": "Fedora RYnux",
+    "version": "44"
+  },
+  "kernel": {
+    "dir": "/images/pxeboot",
+    "opts": [
+      "root=live:CDLABEL=Fedora-S-dvd-x86_64-44",
+      "rd.live.image",
+      "quiet",
+      "rhgb",
+      "enforcing=0"
+    ]
+  },
+  "isolabel": "Fedora-S-dvd-x86_64-44",
+  "troubleshooting": false,
+  "test": false,
+  "install": true
+}
+Failed to create directory or subvolume "/usr/local/sbin": Read-only file system
+kernel dir at /images/pxeboot
+⏱  Duration: 0.58s
+org.osbuild.grub2.inst: 605ebb81fcac3c098f107e7d7e0ea7f9046e5d3a5ffd86abd1a5b823ff8a1c3f {
+  "filename": "images/eltorito.img",
+  "platform": "i386-pc",
+  "core": {
+    "type": "mkimage",
+    "partlabel": "gpt",
+    "filesystem": "iso9660"
+  },
+  "prefix": {
+    "path": "/boot/grub2"
+  }
+}
+Failed to create directory or subvolume "/usr/local/sbin": Read-only file system
+prefix: /boot/grub2
+grub2-mkimage: info: the total module size is 0x6ab8.
+grub2-mkimage: info: reading /usr/lib/grub/i386-pc/kernel.img.
+grub2-mkimage: info: locating the section .text at 0x0.
+grub2-mkimage: info: locating the section .rodata at 0xc300.
+grub2-mkimage: info: locating the section .module_license at 0xe5a4.
+grub2-mkimage: info: locating the section .data at 0xe5e0.
+grub2-mkimage: info: locating the section .bss at 0xef60.
+grub2-mkimage: info: reading /usr/lib/grub/i386-pc/biosdisk.mod.
+grub2-mkimage: info: reading /usr/lib/grub/i386-pc/part_gpt.mod.
+grub2-mkimage: info: reading /usr/lib/grub/i386-pc/fshelp.mod.
+grub2-mkimage: info: reading /usr/lib/grub/i386-pc/iso9660.mod.
+grub2-mkimage: info: kernel_img=0x618b83011210, kernel_size=0xef58.
+grub2-mkimage: info: the core size is 0x8278.
+grub2-mkimage: info: reading /usr/lib/grub/i386-pc/lzma_decompress.img.
+grub2-mkimage: info: reading /usr/lib/grub/i386-pc/cdboot.img.
+grub2-mkimage: info: writing 0x800 bytes.
+grub2-mkimage: info: reading /usr/lib/grub/i386-pc/diskboot.img.
+grub2-mkimage: info: writing 0x200 bytes.
+grub2-mkimage: info: writing 0x8d98 bytes.
+⏱  Duration: 0.45s
+org.osbuild.truncate: 5a4893d3797c38c63a6bd121e3e8c118b8e676490ae0669b8d03981ce6d28306 {
+  "filename": "images/efiboot.img",
+  "size": "20971520"
+}
+Failed to create directory or subvolume "/usr/local/sbin": Read-only file system
+⏱  Duration: 0.39s
+org.osbuild.mkfs.fat: bd7614a0b56afd6a58743cbb912d2bd785cae1c4b2008d549cd48caad8856df0 {
+  "volid": "DCD8E979"
+}
+device/device (org.osbuild.loopback): loop0 acquired (locked: True)
+Failed to create directory or subvolume "/usr/local/sbin": Read-only file system
+mkfs.fat 4.2 (2021-01-31)
+⏱  Duration: 0.52s
+org.osbuild.copy: 45a9f04f52288ee6fc83927137094b733bbcd215cbb6988b4a988f77cebb0e4a {
+  "paths": [
+    {
+      "from": "input://root-tree/",
+      "to": "mount://-/"
+    }
+  ]
+}
+device/- (org.osbuild.loopback): loop0 acquired (locked: False)
+mount/- (org.osbuild.fat): mounting /dev/loop0 -> /var/cache/image-builder/store/tmp/buildroot-tmp-7ozw0tm9/mounts/
+Failed to create directory or subvolume "/usr/local/sbin": Read-only file system
+copying '/run/osbuild/inputs/root-tree/.' -> '/run/osbuild/mounts/.'
+mount/- (org.osbuild.fat): umount: /var/cache/image-builder/store/tmp/buildroot-tmp-7ozw0tm9/mounts/ unmounted
+⏱  Duration: 0.79s
+org.osbuild.copy: a967c80cda432b9918c65fb27b25f02ebed325596611441aa2d4c354ea4330aa {
+  "paths": [
+    {
+      "from": "input://root-tree/EFI",
+      "to": "tree:///"
+    }
+  ]
+}
+Failed to create directory or subvolume "/usr/local/sbin": Read-only file system
+copying '/run/osbuild/inputs/root-tree/EFI' -> '/run/osbuild/tree/.'
+⏱  Duration: 0.52s
+org.osbuild.discinfo: 60840712c851f1af94bff8bed6d16d36cd419118650a1785922aba09a59a7759 {
+  "basearch": "x86_64",
+  "release": "44"
+}
+Failed to create directory or subvolume "/usr/local/sbin": Read-only file system
+⏱  Duration: 0.40s
+Pipeline bootiso: e9c133e3e96da0a0f3e68ccc5e176153b7b34bbf9bc2c69eae49f3aa6f723501
+Build
+  root: 2ae964399944ca071a599f7e765c4029ed775ffbd05c1c96cb4ffc30888d6a74
+  runner: org.osbuild.fedora44 (org.osbuild.fedora38)
+org.osbuild.xorrisofs: 3f24f5bf9bb3e58b6b146aeaabbe4927994cac5fd2a7758d91dd7aee8b0a5964 {
+  "filename": "install.iso",
+  "volid": "Fedora-S-dvd-x86_64-44",
+  "sysid": "LINUX",
+  "boot": {
+    "image": "images/eltorito.img",
+    "catalog": "boot.cat"
+  },
+  "efi": "images/efiboot.img",
+  "isolevel": 3,
+  "grub2mbr": "/usr/lib/grub/i386-pc/boot_hybrid.img"
+}
+Failed to create directory or subvolume "/usr/local/sbin": Read-only file system
+['/usr/bin/xorrisofs', '-verbose', '-rock', '-joliet', '-iso-level', '3', '-V', 'Fedora-S-dvd-x86_64-44', '-sysid', 'LINUX', '--grub2-mbr', '/usr/lib/grub/i386-pc/boot_hybrid.img', '-partition_offset', '16', '-appended_part_as_gpt', '-append_partition', '2', 'C12A7328-F81F-11D2-BA4B-00A0C93EC93B', '/run/osbuild/inputs/tree/images/efiboot.img', '-iso_mbr_part_type', 'EBD0A0A2-B9E5-4433-87C0-68B6B72699C7', '-b', 'images/eltorito.img', '-c', 'boot.cat', '--boot-catalog-hide', '-no-emul-boot', '-boot-load-size', '4', '-boot-info-table', '--grub2-boot-info', '-eltorito-alt-boot', '-e', '--interval:appended_partition_2:all::', '-no-emul-boot', '-o', '/run/osbuild/tree/install.iso', '/run/osbuild/inputs/tree']
+xorriso 1.5.8.pl02 : RockRidge filesystem manipulator, libburnia project.
+Drive current: -outdev 'stdio:/run/osbuild/tree/install.iso'
+Media current: stdio file, overwriteable
+Media status : is blank
+Media summary: 0 sessions, 0 data blocks, 0 data, 80.8g free
+xorriso : WARNING : -volid text is too long for Joliet (22 > 16)
+xorriso : WARNING : -volid text does not comply to ISO 9660 / ECMA 119 rules
+Added to ISO image: directory '/'='/run/osbuild/inputs/tree'
+xorriso : UPDATE :     325 files added in 1 seconds
+xorriso : UPDATE :     325 files added in 1 seconds
+xorriso : NOTE : Copying to System Area: 512 bytes from file '/usr/lib/grub/i386-pc/boot_hybrid.img'
+xorriso : UPDATE :  1.94% done
+xorriso : UPDATE :  16.58% done
+xorriso : UPDATE :  26.97% done, estimate finish Thu Oct 15 03:47:00 2026
+xorriso : UPDATE :  35.87% done, estimate finish Thu Oct 15 03:47:01 2026
+xorriso : UPDATE :  40.90% done, estimate finish Thu Oct 15 03:47:02 2026
+xorriso : UPDATE :  46.33% done, estimate finish Thu Oct 15 03:47:03 2026
+xorriso : UPDATE :  52.93% done, estimate finish Thu Oct 15 03:47:04 2026
+xorriso : UPDATE :  59.04% done, estimate finish Thu Oct 15 03:47:04 2026
+xorriso : UPDATE :  66.25% done, estimate finish Thu Oct 15 03:47:05 2026
+xorriso : UPDATE :  71.66% done, estimate finish Thu Oct 15 03:47:05 2026
+xorriso : UPDATE :  78.47% done, estimate finish Thu Oct 15 03:47:05 2026
+xorriso : UPDATE :  85.44% done, estimate finish Thu Oct 15 03:47:05 2026
+ISO image produced: 1849558 sectors
+Written to medium : 1849558 sectors at LBA 0
+Writing to 'stdio:/run/osbuild/tree/install.iso' completed successfully.
+⏱  Duration: 16.17s
+org.osbuild.implantisomd5: e9c133e3e96da0a0f3e68ccc5e176153b7b34bbf9bc2c69eae49f3aa6f723501 {
+  "filename": "install.iso"
+}
+Failed to create directory or subvolume "/usr/local/sbin": Read-only file system
+['implantisomd5', '/run/osbuild/tree/install.iso']
+Traceback (most recent call last):
+  File "/run/osbuild/bin/org.osbuild.implantisomd5", line 26, in <module>
+    r = main(args["tree"], args["options"])
+  File "/run/osbuild/bin/org.osbuild.implantisomd5", line 17, in main
+    subprocess.run(cmd,
+    ~~~~~~~~~~~~~~^^^^^
+                   cwd=tree,
+                   ^^^^^^^^^
+                   check=True)
+                   ^^^^^^^^^^^
+  File "/usr/lib64/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib64/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib64/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: 'implantisomd5'
+⏱  Duration: 0.43s
+manifest - failed
+Failed
+error: error running osbuild: exit status 1
+Error: Process completed with exit code 1.

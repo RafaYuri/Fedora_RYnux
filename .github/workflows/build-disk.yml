@@ -70,13 +70,13 @@ jobs:
           # Garante que o kickstart do instalador aponte para o repositório correto (útil em forks)
           sed -i "s|ghcr.io/rafayuri/fedora_rynux:latest|${IMAGE_REGISTRY}/${IMAGE_NAME}:${DEFAULT_TAG}|g" disk_config/iso.toml
 
-      - name: Preparar Estrutura EFI para o image-builder
+      - name: Preparar Estrutura EFI e Utilitários para o image-builder
         run: |
           cat << 'EOF' > Containerfile.iso
           FROM ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }}
 
-          # Garante ferramentas e binários de bootloader para UEFI e BIOS
-          RUN dnf install -y --setopt=tsflags=nodocs shim-x64 grub2-efi-x64 grub2-efi-x64-cdboot grub2-pc-modules && dnf clean all || true
+          # Garante ferramentas de bootloader para UEFI/BIOS e utilitários da ISO (isomd5sum para implantisomd5, xorriso)
+          RUN dnf install -y --setopt=tsflags=nodocs shim-x64 grub2-efi-x64 grub2-efi-x64-cdboot grub2-pc-modules isomd5sum xorriso && dnf clean all || true
 
           # Popula /boot/efi/EFI/fedora conforme o contrato esperado pelo osbuild (org.osbuild.grub2.iso)
           RUN set -eux; \
@@ -101,6 +101,7 @@ jobs:
                   cp /boot/efi/EFI/fedora/grubx64.efi /boot/efi/EFI/fedora/gcdx64.efi; \
               fi; \
               test -f /boot/efi/EFI/fedora/shimx64.efi; \
+              which implantisomd5 || true; \
               ls -la /boot/efi/EFI/fedora/
           EOF
           sudo podman build -f Containerfile.iso -t localhost/rynux-bootc-iso:latest .
