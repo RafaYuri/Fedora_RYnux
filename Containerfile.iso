@@ -1,7 +1,7 @@
 ARG BASE_IMAGE=ghcr.io/rafayuri/fedora_rynux:latest
 FROM ${BASE_IMAGE}
 
-# 1. Instala dependências do osbuild (Lorax, templates, Mako), runtime do Anaconda e utilitários da ISO
+# 1. Instala dependências do osbuild (Lorax, Mako), runtime do Anaconda, ferramentas de ISO e módulos do Dracut
 RUN dnf install -y --setopt=tsflags=nodocs \
     shim-x64 \
     grub2-efi-x64-cdboot \
@@ -14,7 +14,12 @@ RUN dnf install -y --setopt=tsflags=nodocs \
     lorax \
     lorax-templates-generic \
     anaconda-core \
-    anaconda-tui && \
+    anaconda-tui \
+    anaconda-dracut \
+    biosdevname \
+    prefixdevname \
+    dracut-network \
+    dracut-fips && \
     dnf clean all
 
 # 2. Garante os diretórios do sistema de arquivos exigidos pelo runtime-postinstall do Lorax
