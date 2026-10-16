@@ -1,27 +1,28 @@
-name: Construir Imagens de Disco
+name: Construir ISO de Instalação (UBlue Style)
 on:
   workflow_dispatch:
   pull_request:
     branches:
       - main
     paths:
-      - 'iso.yaml'
-      - 'Containerfile.iso'
       - '.github/workflows/build-disk.yml'
 
 env:
-  IMAGE_NAME: ${{ github.event.repository.name }} 
+  IMAGE_NAME: ${{ github.event.repository.name }}
   IMAGE_REGISTRY: "ghcr.io/${{ github.repository_owner }}"
   DEFAULT_TAG: "latest"
-  IB_IMAGE: "ghcr.io/osbuild/image-builder-cli:latest"
+  # Versão base do Fedora do seu container (ex: 41, 42, 43 ou 44)
+  FEDORA_VERSION: "latest"
+  # Variante base: Kinoite (KDE Plasma)
+  VARIANT: "Kinoite"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
   cancel-in-progress: true
 
 jobs:
-  build:
-    name: Gerar Imagem ISO
+  build-iso:
+    name: Gerar ISO com build-container-installer
     runs-on: ubuntu-26.04
     permissions:
       contents: read
@@ -29,14 +30,10 @@ jobs:
       id-token: write
 
     steps:
-      - name: Preparar Variáveis de Ambiente
+      - name: Normalizar Variáveis de Ambiente
         run: |
-          USER_UID=$(id -u)
-          USER_GID=$(id -g)
           echo "IMAGE_REGISTRY=${IMAGE_REGISTRY,,}" >> ${GITHUB_ENV}
           echo "IMAGE_NAME=${IMAGE_NAME,,}" >> ${GITHUB_ENV}
-          echo "USER_UID=${USER_UID}" >> ${GITHUB_ENV}
-          echo "USER_GID=${USER_GID}" >> ${GITHUB_ENV}
 
       - name: Liberar Espaço em Disco
         run: |
@@ -51,57 +48,33 @@ jobs:
       - name: Clonar Repositório
         uses: actions/checkout@v7
 
-      - name: Configurar AppArmor & User Namespaces
-        run: |
-          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0 || true
-          sudo aa-teardown || true
-          sudo systemctl stop apparmor || true
-
-      - name: Login no GHCR (Podman)
-        run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" | sudo podman login \
-            -u "${{ github.actor }}" --password-stdin ghcr.io
-
-      - name: Baixar Imagem Base (bootc)
-        run: |
-          sudo podman pull ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }}
-
-      - name: Construir Camada Intermediária da ISO
-        run: |
-          sudo podman build \
-            --build-arg BASE_IMAGE="${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }}" \
-            -f Containerfile.iso \
-            -t localhost/rynux-bootc-iso:latest .
-
-      - name: Construir ISO com image-builder
+      - name: Gerar ISO de Instalação do Fedora RYnux
         id: build
-        run: |
-          mkdir -p ./output
-          sudo podman run --rm --privileged \
-            --pull=newer \
-            --security-opt label=type:unconfined_t \
-            -v "$(pwd)/output:/output" \
-            -v /var/lib/containers/storage:/var/lib/containers/storage \
-            ${{ env.IB_IMAGE }} \
-            build \
-            --bootc-ref localhost/rynux-bootc-iso:latest \
-            --bootc-default-fs btrfs \
-            --output-dir /output \
-            bootc-generic-iso
+        uses: jasonn3/build-container-installer@main
+        with:
+          arch: x86_64
+          version: ${{ env.FEDORA_VERSION }}
+          variant: ${{ env.VARIANT }}
+          image_repo: ${{ env.IMAGE_REGISTRY }}
+          image_name: ${{ env.IMAGE_NAME }}
+          image_tag: ${{ env.DEFAULT_TAG }}
+          iso_name: "${{ env.IMAGE_NAME }}-${{ env.DEFAULT_TAG }}.iso"
+          # Permite instalar imagens de repositórios públicos sem necessidade de cosign local
+          enable_cache_dnf: "false"
 
-          sudo chown -R ${{ env.USER_UID }}:${{ env.USER_GID }} ./output
-          echo "output-directory=./output" >> "${GITHUB_OUTPUT}"
-
-      - name: Verificar Arquivos Gerados e Checksums
+      - name: Verificar ISO e Gerar Checksums
         run: |
-          ls -lh ./output
-          find ./output -type f -name "*.iso" -exec sha256sum {} + | tee ./output/SHA256SUMS
+          ls -lh "${{ steps.build.outputs.iso_path }}"
+          cd "${{ steps.build.outputs.iso_path }}"
+          sha256sum "${{ steps.build.outputs.iso_name }}" | tee SHA256SUMS
 
       - name: Enviar ISO para os Artefatos
         if: github.event_name != 'pull_request'
         uses: actions/upload-artifact@v7
         with:
-          name: Fedora_RYnux-ISO
-          path: ${{ steps.build.outputs.output-directory }}
+          name: Fedora_RYnux-Installer-ISO
+          path: |
+            ${{ steps.build.outputs.iso_path }}/${{ steps.build.outputs.iso_name }}
+            ${{ steps.build.outputs.iso_path }}/SHA256SUMS
           if-no-files-found: error
           retention-days: 5

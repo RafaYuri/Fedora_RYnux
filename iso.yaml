@@ -1,8 +1,0 @@
-label: "Fedora-RYnux"
-grub2:
-  default: 0
-  timeout: 10
-  entries:
-    - name: "Iniciar Fedora RYnux (Live / Instalador)"
-      linux: "/images/pxeboot/vmlinuz root=live:CDLABEL=Fedora-RYnux rd.live.image quiet"
-      initrd: "/images/pxeboot/initrd.img"
