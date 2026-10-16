@@ -54,21 +54,23 @@ COPY branding/icons/ /tmp/branding_icons/
 COPY branding/fedora_rynux.png /tmp/branding_icons/512x512/fedora_rynux_512x512.png
 
 RUN for res in 16 24 32 48 64 128 256 512; do \
-        target_dir="/usr/share/icons/hicolor/${res}x${res}/apps"; \
-        mkdir -p "$target_dir" && \
-        cp "/tmp/branding_icons/${res}x${res}/fedora_rynux_${res}x${res}.png" "${target_dir}/fedora_rynux.png" && \
-        ln -sf fedora_rynux.png "${target_dir}/fedora-logo-icon.png" && \
-        ln -sf fedora_rynux.png "${target_dir}/start-here-kde.png" && \
-        ln -sf fedora_rynux.png "${target_dir}/distributor-logo.png" && \
-        ln -sf fedora_rynux.png "${target_dir}/distributor-logo-fedora.png"; \
+        for cat in apps places; do \
+            target_dir="/usr/share/icons/hicolor/${res}x${res}/${cat}"; \
+            mkdir -p "$target_dir" && \
+            cp "/tmp/branding_icons/${res}x${res}/fedora_rynux_${res}x${res}.png" "${target_dir}/fedora_rynux.png" && \
+            ln -sf fedora_rynux.png "${target_dir}/fedora-logo-icon.png" && \
+            ln -sf fedora_rynux.png "${target_dir}/start-here-kde.png" && \
+            ln -sf fedora_rynux.png "${target_dir}/start-here.png" && \
+            ln -sf fedora_rynux.png "${target_dir}/distributor-logo.png" && \
+            ln -sf fedora_rynux.png "${target_dir}/distributor-logo-fedora.png"; \
+        done; \
     done && \
-    # Remove qualquer SVG residual do Fedora no hicolor escalável
-    rm -f /usr/share/icons/hicolor/scalable/apps/fedora-logo-icon.svg \
-          /usr/share/icons/hicolor/scalable/apps/distributor-logo*.svg \
-          /usr/share/icons/hicolor/scalable/apps/fedora_rynux.svg && \
-    # Remove logos vetorizados nos temas Breeze
-    find /usr/share/icons/breeze* -name "*distributor-logo*.svg" -delete && \
-    find /usr/share/icons/breeze* -name "*fedora-logo*.svg" -delete && \
+    # Remove qualquer SVG residual do Fedora que possa sobrepor os PNGs
+    find /usr/share/icons/ -type f \( \
+        -name "*fedora-logo*.svg" -o \
+        -name "*start-here*.svg" -o \
+        -name "*distributor-logo*.svg" \
+    \) -delete && \
     # Substitui os logos legados em /usr/share/pixmaps
     mkdir -p /usr/share/pixmaps && \
     cp /tmp/branding_icons/512x512/fedora_rynux_512x512.png /usr/share/pixmaps/fedora_rynux.png && \
@@ -76,10 +78,10 @@ RUN for res in 16 24 32 48 64 128 256 512; do \
     ln -sf fedora_rynux.png /usr/share/pixmaps/fedora-gdm-logo.png && \
     ln -sf fedora_rynux.png /usr/share/pixmaps/system-logo-white.png && \
     rm -rf /tmp/branding_icons && \
-    # Atualiza layouts do painel do Plasma
-    find /usr/share/plasma/ -name "layout.js" -exec sed -i 's/"fedora-logo-icon"/"fedora_rynux"/g' {} + && \
-    find /usr/share/plasma/ -name "layout.js" -exec sed -i 's/"start-here-kde"/"fedora_rynux"/g' {} + && \
-    # OTIMIZAÇÃO: Atualiza cache do hicolor E temas Breeze modificados (evita I/O e varredura do KDE no boot)
+    # Atualiza layouts do painel do Plasma aceitando aspas simples ou duplas
+    find /usr/share/plasma/ -name "*.js" -exec sed -i -E \
+        's/(["'\''"])(fedora-logo-icon|start-here-kde)(["'\''"])/\1fedora_rynux\3/g' {} + && \
+    # Atualiza o cache de ícones do hicolor e temas Breeze
     gtk-update-icon-cache -q -t -f /usr/share/icons/hicolor && \
     for theme in /usr/share/icons/breeze*; do \
         [ -d "$theme" ] && gtk-update-icon-cache -q -t -f "$theme" 2>/dev/null || true; \
