@@ -1,7 +1,7 @@
 ARG BASE_IMAGE=ghcr.io/rafayuri/fedora_rynux:latest
 FROM ${BASE_IMAGE}
 
-# 1. Instala dependências do osbuild (Lorax/Mako), Anaconda runtime e ferramentas de mídia ótica
+# 1. Instala dependências do osbuild (Lorax, templates e Mako), Anaconda runtime e ferramentas de ISO
 RUN dnf install -y --setopt=tsflags=nodocs \
     shim-x64 \
     grub2-efi-x64-cdboot \
@@ -11,6 +11,8 @@ RUN dnf install -y --setopt=tsflags=nodocs \
     isomd5sum \
     squashfs-tools \
     python3-mako \
+    lorax \
+    lorax-templates-generic \
     anaconda-core \
     anaconda-tui && \
     dnf clean all
