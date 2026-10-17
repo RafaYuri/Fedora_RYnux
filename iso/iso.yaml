@@ -1,0 +1,8 @@
+label: "Fedora-RYnux-Installer"
+grub2:
+  default: 0
+  timeout: 5
+  entries:
+    - name: "Instalar Fedora RYnux"
+      linux: "/images/pxeboot/vmlinuz root=live:CDLABEL=Fedora-RYnux-Installer rd.live.image enforcing=0 console=tty0 quiet"
+      initrd: "/images/pxeboot/initrd.img"

@@ -20,10 +20,10 @@ Seu foco principal é fornecer um ambiente "time-proven" e altamente otimizado p
 A automação deste repositório compila o sistema operacional diariamente. Para instalar na sua máquina:
 
 1. Acesse a aba [Actions](../../actions) deste repositório.
-2. Clique no workflow **Build disk images** (ou baixe o artefato da compilação mais recente).
-3. Faça o download do arquivo `Fedora_RYnux-ISO`.
+2. Clique no workflow **Construir ISO de Instalação (image-builder)** (ou baixe o artefato da compilação mais recente).
+3. Faça o download do artefato `Fedora_RYnux-Installer-ISO`.
 4. Utilize uma ferramenta (como o Fedora Media Writer, Rufus ou BalenaEtcher) para gravar a ISO em um pendrive.
-5. Inicie a máquina pelo pendrive. O instalador gráfico fará o particionamento BTRFS e a instalação do sistema base. No primeiro boot, o KDE assumirá o controle para a criação do seu usuário e configuração de rede.
+5. Inicie a máquina pelo pendrive. O instalador TUI permitirá selecionar o disco de destino e fará automaticamente o particionamento GPT + BTRFS e a instalação offline do sistema base. No primeiro boot, o assistente do KDE Plasma (*Plasma Setup*) assumirá o controle para a criação do seu usuário e configuração de rede.
 
 ## 🔄 Atualizações
 

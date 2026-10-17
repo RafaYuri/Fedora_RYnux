@@ -33,10 +33,6 @@ evtest
 glow
 git-credential-libsecret
 grub2-tools-extra
-grub2-efi-x64
-grub2-efi-x64-cdboot
-shim-x64
-grub2-pc-modules
 gum
 gvfs
 gvfs-fuse
@@ -68,9 +64,6 @@ samba-winbind
 samba-winbind-clients
 samba-winbind-modules
 setools-console
-squashfs-tools
-isomd5sum
-xorriso
 symlinks
 tcpdump
 tesseract-devel

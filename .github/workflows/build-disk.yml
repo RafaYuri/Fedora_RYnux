@@ -1,20 +1,19 @@
-name: Construir ISO de Instalação (UBlue Style)
+name: Construir ISO de Instalação (image-builder)
 on:
   workflow_dispatch:
   pull_request:
     branches:
       - main
     paths:
+      - 'iso/**'
       - '.github/workflows/build-disk.yml'
 
 env:
   IMAGE_NAME: ${{ github.event.repository.name }}
   IMAGE_REGISTRY: "ghcr.io/${{ github.repository_owner }}"
   DEFAULT_TAG: "latest"
-  # Versão base do Fedora do seu container (ex: 41, 42, 43 ou 44)
   FEDORA_VERSION: "44"
-  # Variante base: Kinoite (KDE Plasma)
-  VARIANT: "Kinoite"
+  IB_IMAGE: "ghcr.io/osbuild/image-builder-cli:latest"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
@@ -22,7 +21,7 @@ concurrency:
 
 jobs:
   build-iso:
-    name: Gerar ISO com build-container-installer
+    name: Gerar ISO com osbuild/image-builder
     runs-on: ubuntu-26.04
     permissions:
       contents: read
@@ -34,6 +33,8 @@ jobs:
         run: |
           echo "IMAGE_REGISTRY=${IMAGE_REGISTRY,,}" >> ${GITHUB_ENV}
           echo "IMAGE_NAME=${IMAGE_NAME,,}" >> ${GITHUB_ENV}
+          echo "USER_UID=$(id -u)" >> ${GITHUB_ENV}
+          echo "USER_GID=$(id -g)" >> ${GITHUB_ENV}
 
       - name: Liberar Espaço em Disco
         run: |
@@ -45,28 +46,72 @@ jobs:
           sudo docker system prune -af || true
           df -h
 
+      - name: Configurar AppArmor & User Namespaces
+        run: |
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0 || true
+          sudo aa-teardown || true
+          sudo systemctl stop apparmor || true
+
       - name: Clonar Repositório
         uses: actions/checkout@v7
 
-      - name: Gerar ISO de Instalação do Fedora RYnux
-        id: build
-        uses: jasonn3/build-container-installer@main
-        with:
-          arch: x86_64
-          version: ${{ env.FEDORA_VERSION }}
-          variant: ${{ env.VARIANT }}
-          image_repo: ${{ env.IMAGE_REGISTRY }}
-          image_name: ${{ env.IMAGE_NAME }}
-          image_tag: ${{ env.DEFAULT_TAG }}
-          iso_name: "${{ env.IMAGE_NAME }}-${{ env.DEFAULT_TAG }}.iso"
-          # Permite instalar imagens de repositórios públicos sem necessidade de cosign local
-          enable_cache_dnf: "false"
-
-      - name: Verificar ISO e Gerar Checksums
+      - name: Login no GHCR (Podman)
         run: |
-          ls -lh "${{ steps.build.outputs.iso_path }}"
-          cd "${{ steps.build.outputs.iso_path }}"
-          sha256sum "${{ steps.build.outputs.iso_name }}" | tee SHA256SUMS
+          echo "${{ secrets.GITHUB_TOKEN }}" | sudo podman login \
+            -u "${{ github.actor }}" --password-stdin ghcr.io
+
+      - name: Baixar Imagem Payload do Fedora RYnux (bootc)
+        run: |
+          PAYLOAD_REF="${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }}"
+          sudo podman pull "${PAYLOAD_REF}"
+
+      - name: Construir Container do Ambiente de Boot da ISO (TUI)
+        run: |
+          PAYLOAD_REF="${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }}"
+          sudo podman build \
+            --security-opt label=disable \
+            --build-arg FEDORA_VERSION="${{ env.FEDORA_VERSION }}" \
+            --build-arg PAYLOAD_IMAGE="${PAYLOAD_REF}" \
+            -f iso/Containerfile.iso \
+            -t localhost/rynux-iso-env:latest .
+
+      - name: Inspecionar Container da ISO com image-builder
+        run: |
+          sudo podman run --rm --privileged \
+            --security-opt label=type:unconfined_t \
+            -v /var/lib/containers/storage:/var/lib/containers/storage \
+            ${{ env.IB_IMAGE }} \
+            bootc inspect --ref localhost/rynux-iso-env:latest
+
+      - name: Gerar ISO de Instalação (bootc-generic-iso)
+        id: build
+        run: |
+          PAYLOAD_REF="${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }}"
+          ISO_FILENAME="${{ env.IMAGE_NAME }}-${{ env.DEFAULT_TAG }}.iso"
+          mkdir -p ./output
+
+          sudo podman run --rm --privileged \
+            --pull=newer \
+            --security-opt label=type:unconfined_t \
+            -v "$(pwd)/output:/output" \
+            -v /var/lib/containers/storage:/var/lib/containers/storage \
+            ${{ env.IB_IMAGE }} \
+            build \
+            --bootc-ref localhost/rynux-iso-env:latest \
+            --bootc-installer-payload-ref "${PAYLOAD_REF}" \
+            --bootc-default-fs btrfs \
+            --output-dir /output \
+            --output-name "${ISO_FILENAME}" \
+            bootc-generic-iso
+
+          sudo chown -R ${{ env.USER_UID }}:${{ env.USER_GID }} ./output
+          if [ ! -f "./output/${ISO_FILENAME}" ]; then
+            FOUND_ISO=$(find ./output -maxdepth 2 -type f -name "*.iso" | head -n 1)
+            mv -v "${FOUND_ISO}" "./output/${ISO_FILENAME}"
+          fi
+          cd ./output
+          sha256sum "${ISO_FILENAME}" | tee SHA256SUMS
+          ls -lh
 
       - name: Enviar ISO para os Artefatos
         if: github.event_name != 'pull_request'
@@ -74,7 +119,7 @@ jobs:
         with:
           name: Fedora_RYnux-Installer-ISO
           path: |
-            ${{ steps.build.outputs.iso_path }}/${{ steps.build.outputs.iso_name }}
-            ${{ steps.build.outputs.iso_path }}/SHA256SUMS
+            ./output/${{ env.IMAGE_NAME }}-${{ env.DEFAULT_TAG }}.iso
+            ./output/SHA256SUMS
           if-no-files-found: error
           retention-days: 5

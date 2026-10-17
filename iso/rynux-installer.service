@@ -1,0 +1,20 @@
+[Unit]
+Description=Instalador TUI do Fedora RYnux
+After=systemd-user-sessions.service plymouth-quit.service systemd-vconsole-setup.service
+Conflicts=getty@tty1.service
+
+[Service]
+Type=idle
+ExecStart=/usr/local/bin/rynux-installer
+StandardInput=tty
+StandardOutput=tty
+StandardError=tty
+TTYPath=/dev/tty1
+TTYReset=yes
+TTYVHangup=yes
+KillMode=process
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target
