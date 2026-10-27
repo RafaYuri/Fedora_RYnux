@@ -39,7 +39,8 @@ O Fedora RYnux entrega um sistema base limpo e imutável. Para instalar ferramen
 
 Este projeto só é possível graças ao trabalho excepcional da comunidade de código aberto:
 
-* **Time do [Fedora Project](https://fedoraproject.org/):** Pela excelência contínua na engenharia da distribuição, empacotamento impecável e integração de ponta com o KDE Plasma e o Anaconda WebUI.
+* **Time do [Fedora Project](https://fedoraproject.org/):** Pela excelência contínua na engenharia da distribuição e empacotamento impecável.
+* **Time do [KDE Plasma](https://kde.org/plasma-desktop):** Por fornecer um ambiente de desktop moderno, elegante e altamente configurável.
 * **Desenvolvedores do [bootc](https://github.com/bootc-dev/bootc) e [osbuild / image-builder](https://github.com/osbuild/image-builder-cli):** Por revolucionarem a arquitetura de sistemas operacionais Linux imutáveis baseados em contêineres OCI.
 * **Fernando Fedora ([Ferlinuxdebian](https://github.com/Ferlinuxdebian)):** Pelo excelente trabalho e divulgação de conteúdos relacionados ao bootc na comunidade brasileira do Fedora Linux.
 ---
