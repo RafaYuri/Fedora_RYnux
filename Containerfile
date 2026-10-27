@@ -1,14 +1,14 @@
 # ====================================================================
 # ESTÁGIO 1: Construção do Sistema
 # ====================================================================
-FROM quay.io/fedora/fedora-bootc:45 AS final
+FROM quay.io/fedora/fedora-bootc:latest AS final
 LABEL ostree.bootable="true"
 LABEL containers.bootc="1"
 
 # Instalando o KDE Desktop com otimização de cache para nuvem
 RUN --mount=type=cache,dst=/var/cache/dnf \
     dnf update -y && \
-    dnf install --setopt=tsflags=nodocs -y @kde-desktop --exclude=kcharselect,plasma-discover-package-kit,krfb,kwrite,akonadi* && \
+    dnf install --setopt=tsflags=nodocs -y @kde-desktop --exclude=kcharselect,plasma-discover-packagekit,krfb,kwrite,akonadi* && \
     dnf clean all
 
 # Copia a pasta de listas de pacotes para dentro da imagem temporariamente
