@@ -1,10 +1,30 @@
-ARG FEDORA_VERSION=45
+ARG FEDORA_VERSION=44
 FROM quay.io/fedora/fedora-bootc:${FEDORA_VERSION}
 
 ARG PAYLOAD_IMAGE=ghcr.io/rafayuri/fedora_rynux:latest
 
-# 1. Instala os pacotes exigidos pelo contrato do bootc-generic-iso + utilitários do TUI
-RUN dnf install -y --setopt=tsflags=nodocs \
+# ====================================================================
+# 1. Pacotes do Anaconda WebUI + Contrato do bootc-generic-iso
+# ====================================================================
+RUN dnf install -qy --setopt=tsflags=nodocs \
+    anaconda \
+    anaconda-install-img-deps \
+    anaconda-dracut \
+    anaconda-webui \
+    cockpit-ws \
+    cockpit-bridge \
+    firefox \
+    cage \
+    mesa-dri-drivers \
+    default-fonts-core-sans \
+    glibc-langpack-pt \
+    langpacks-core-pt_BR \
+    dracut-config-generic \
+    dracut-network \
+    dracut-live \
+    net-tools \
+    plymouth \
+    plymouth-theme-spinner \
     shim-x64 \
     grub2-efi-x64 \
     grub2-efi-x64-cdboot \
@@ -12,24 +32,21 @@ RUN dnf install -y --setopt=tsflags=nodocs \
     grub2-tools \
     grub2-tools-minimal \
     grub2-common \
-    dracut-live \
+    xorrisofs \
     squashfs-tools \
-    xorriso \
     isomd5sum \
     dosfstools \
     e2fsprogs \
     btrfs-progs \
-    util-linux \
-    parted \
-    gdisk \
-    kbd \
-    dialog \
+    fuse-overlayfs \
     podman \
     skopeo \
-    python3 && \
+    jq && \
     dnf clean all
 
-# 2. Cumpre o contrato EFI e GRUB2 do image-builder (/boot/efi/EFI/fedora/{shimx64,mmx64,gcdx64}.efi)
+# ====================================================================
+# 2. Contrato EFI e GRUB2 do image-builder
+# ====================================================================
 RUN set -eux; \
     mkdir -p /boot/efi /usr/share/grub2 && \
     cp -ra /usr/lib/efi/*/*/EFI /boot/efi && \
@@ -39,29 +56,123 @@ RUN set -eux; \
     test -f /boot/efi/EFI/fedora/gcdx64.efi && \
     test -d /usr/lib/grub/i386-pc
 
-# 3. Configura o console para ABNT2 e instala o TUI no tty1
-RUN echo "KEYMAP=br-abnt2" > /etc/vconsole.conf
+# ====================================================================
+# 3. BRANDING: Identidade do Sistema e Logos no Anaconda WebUI
+# ====================================================================
+RUN sed -i 's/NAME="Fedora Linux"/NAME="Fedora RYnux"/' /usr/lib/os-release && \
+    sed -i 's/^PRETTY_NAME=.*/PRETTY_NAME="Fedora RYnux"/' /usr/lib/os-release && \
+    sed -i 's|^LOGO=.*|LOGO="fedora_rynux"|' /usr/lib/os-release && \
+    sed -i 's|^HOME_URL=.*|HOME_URL="https://github.com/RafaYuri/Fedora_RYnux"|' /usr/lib/os-release && \
+    sed -i 's|^DOCUMENTATION_URL=.*|DOCUMENTATION_URL="https://github.com/RafaYuri/Fedora_RYnux"|' /usr/lib/os-release && \
+    sed -i 's|^SUPPORT_URL=.*|SUPPORT_URL="https://github.com/RafaYuri/Fedora_RYnux/issues"|' /usr/lib/os-release && \
+    sed -i 's|^BUG_REPORT_URL=.*|BUG_REPORT_URL="https://github.com/RafaYuri/Fedora_RYnux/issues"|' /usr/lib/os-release
 
-COPY iso/rynux-installer.sh /usr/local/bin/rynux-installer
-RUN sed -i "s|@@PAYLOAD_IMAGE@@|${PAYLOAD_IMAGE}|g" /usr/local/bin/rynux-installer && \
-    chmod +x /usr/local/bin/rynux-installer
+COPY branding/icons/ /tmp/branding_icons/
+COPY branding/fedora_rynux_plymouth.png /usr/share/plymouth/themes/spinner/watermark.png
 
-COPY iso/rynux-installer.service /etc/systemd/system/rynux-installer.service
-RUN systemctl disable getty@tty1.service && \
-    systemctl enable rynux-installer.service
+RUN for res in 16 24 32 48 64 128 256 512; do \
+        for cat in apps places; do \
+            target_dir="/usr/share/icons/hicolor/${res}x${res}/${cat}"; \
+            mkdir -p "$target_dir" && \
+            cp "/tmp/branding_icons/${res}x${res}/fedora_rynux_${res}x${res}.png" "${target_dir}/fedora_rynux.png" && \
+            ln -sf fedora_rynux.png "${target_dir}/fedora-logo-icon.png" && \
+            ln -sf fedora_rynux.png "${target_dir}/distributor-logo.png" && \
+            ln -sf fedora_rynux.png "${target_dir}/distributor-logo-fedora.png"; \
+        done; \
+    done && \
+    mkdir -p /usr/share/pixmaps && \
+    cp /tmp/branding_icons/512x512/fedora_rynux_512x512.png /usr/share/pixmaps/fedora_rynux.png && \
+    cp /tmp/branding_icons/64x64/fedora_rynux_64x64.png /etc/favicon.png && \
+    ln -sf fedora_rynux.png /usr/share/pixmaps/fedora-logo.png && \
+    ln -sf fedora_rynux.png /usr/share/pixmaps/fedora-logo-sprite.png && \
+    ln -sf fedora_rynux.png /usr/share/pixmaps/fedora-gdm-logo.png && \
+    ln -sf fedora_rynux.png /usr/share/pixmaps/system-logo-white.png && \
+    rm -rf /tmp/branding_icons && \
+    for bdir in /usr/share/cockpit/branding/fedora /usr/share/cockpit/branding/default; do \
+        if [ -d "$bdir" ]; then \
+            ln -sf /usr/share/pixmaps/fedora_rynux.png "${bdir}/logo.png" && \
+            ln -sf /usr/share/pixmaps/fedora_rynux.png "${bdir}/apple-touch-icon.png" && \
+            ln -sf /etc/favicon.png "${bdir}/favicon.ico" && \
+            printf '\n.anaconda .logo {\n    background-image: url("logo.png") !important;\n    filter: none !important;\n    mix-blend-mode: normal !important;\n}\n' >> "${bdir}/branding.css"; \
+        fi; \
+    done && \
+    mkdir -p /etc/anaconda/cockpit/conf.d && \
+    printf '[WebService]\nLoginTitle = Instalador do Fedora RYnux\n' > /etc/anaconda/cockpit/conf.d/50-branding.conf
 
-# 4. Copia o iso.yaml para o caminho canônico do osbuild/image-builder
+# ====================================================================
+# 4. Configuração do Menu da ISO e do Anaconda (Apenas Idioma + Discos)
+# ====================================================================
 RUN mkdir -p /usr/lib/image-builder/bootc
 COPY iso/iso.yaml /usr/lib/image-builder/bootc/iso.yaml
 
-# 5. Evita montagem automática de discos locais no boot da ISO e gera o initramfs Live
+# Oculta telas desnecessárias pois o KDE Plasma Setup fará a configuração no 1º boot
+RUN mkdir -p /etc/anaconda/conf.d && \
+    cat <<'EOF' > /etc/anaconda/conf.d/99-rynux.conf
+[Storage]
+default_scheme = BTRFS
+btrfs_compression = zstd:1
+
+[User Interface]
+webui_web_engine = firefox
+hidden_spokes =
+    NetworkSpoke
+    PasswordSpoke
+    UserSpoke
+    DatetimeSpoke
+hidden_webui_pages =
+    anaconda-screen-network
+    anaconda-screen-date-time
+    anaconda-screen-installation-source
+    anaconda-screen-software-selection
+    anaconda-screen-accounts
+EOF
+
+# Kickstart padrão apontando para a imagem embutida na ISO (containers-storage)
+RUN mkdir -p /usr/share/anaconda && \
+    cat <<EOF > /usr/share/anaconda/interactive-defaults.ks
+lang pt_BR.UTF-8
+keyboard --vckeymap=br-abnt2 --xlayouts='br'
+timezone America/Sao_Paulo --utc
+rootpw --lock
+bootc --source-imgref containers-storage:${PAYLOAD_IMAGE} --target-imgref ${PAYLOAD_IMAGE}
+EOF
+
+# Garante que o módulo bootc do Anaconda não exija conexão de rede para instalação offline
+RUN sed -i '/def network_required/,/return True/ s/return True/return False/' \
+    /usr/lib64/python3*/site-packages/pyanaconda/modules/payloads/source/bootc/bootc.py 2>/dev/null || true
+
+# ====================================================================
+# 5. Ajustes do Ambiente Live do Anaconda (baseado em lorax / Ferlinuxdebian)
+# ====================================================================
+RUN echo "install:x:0:0:root:/root:/usr/libexec/anaconda/run-anaconda" >> /etc/passwd && \
+    echo "install::14438:0:99999:7:::" >> /etc/shadow && \
+    passwd -d root
+
+RUN mv /usr/share/anaconda/list-harddrives-stub /usr/bin/list-harddrives && \
+    mkdir -p /etc/anaconda.repos.d /etc/ostree && \
+    if [ -d /etc/yum.repos.d ]; then cp -a /etc/yum.repos.d/. /etc/anaconda.repos.d/ && rm -rf /etc/yum.repos.d; fi && \
+    if [ -d /usr/share/dnf5/repos.d ]; then cp -a /usr/share/dnf5/repos.d/. /etc/anaconda.repos.d/; fi && \
+    ln -sf /lib/systemd/system/anaconda.target /etc/systemd/system/default.target && \
+    rm -fv /usr/lib/systemd/system-generators/systemd-gpt-auto-generator
+
+RUN ln -sf /usr/lib/systemd/system/anaconda-shell@.service /usr/lib/systemd/system/autovt@.service
+
+RUN mkdir -p /usr/lib/systemd/logind.conf.d && \
+    printf '[Login]\nReserveVT=2\n' > /usr/lib/systemd/logind.conf.d/anaconda-shell.conf
+
+RUN mkdir -p /etc/systemd/user/pipewire.service.d /etc/systemd/user/pipewire.socket.d && \
+    printf '[Unit]\nConditionUser=\n' > /etc/systemd/user/pipewire.service.d/allowroot.conf && \
+    printf '[Unit]\nConditionUser=\n' > /etc/systemd/user/pipewire.socket.d/allowroot.conf
+
+# ====================================================================
+# 6. Geração do initramfs com módulo Anaconda + Live
+# ====================================================================
 RUN set -eux; \
-    rm -f /usr/lib/systemd/system-generators/systemd-gpt-auto-generator && \
     mkdir -p "$(realpath /root)" && \
-    KVER="$(ls -1 /usr/lib/modules | head -n 1)" && \
+    kernel="$(kernel-install list --json pretty | jq -r '.[] | select(.has_kernel == true) | .version')" && \
+    [ -n "$kernel" ] || kernel="$(ls -1 /usr/lib/modules | head -n 1)" && \
     DRACUT_NO_XATTR=1 dracut --force -v --zstd --reproducible --no-hostonly \
-        --add "dmsquash-live pollcdrom overlayfs" \
-        --omit "ostree bootc" \
-        "/usr/lib/modules/${KVER}/initramfs.img" "${KVER}" && \
-    test -f "/usr/lib/modules/${KVER}/vmlinuz" && \
-    test -f "/usr/lib/modules/${KVER}/initramfs.img"
+        --add "anaconda dmsquash-live pollcdrom overlayfs" \
+        "/usr/lib/modules/${kernel}/initramfs.img" "${kernel}" && \
+    test -f "/usr/lib/modules/${kernel}/vmlinuz" && \
+    test -f "/usr/lib/modules/${kernel}/initramfs.img"

@@ -23,7 +23,7 @@ A automação deste repositório compila o sistema operacional diariamente. Para
 2. Clique no workflow **Construir ISO de Instalação (image-builder)** (ou baixe o artefato da compilação mais recente).
 3. Faça o download do artefato `Fedora_RYnux-Installer-ISO`.
 4. Utilize uma ferramenta (como o Fedora Media Writer, Rufus ou BalenaEtcher) para gravar a ISO em um pendrive.
-5. Inicie a máquina pelo pendrive. O instalador TUI permitirá selecionar o disco de destino e fará automaticamente o particionamento GPT + BTRFS e a instalação offline do sistema base. No primeiro boot, o assistente do KDE Plasma (*Plasma Setup*) assumirá o controle para a criação do seu usuário e configuração de rede.
+5. Inicie a máquina pelo pendrive. O instalador gráfico **Anaconda WebUI** (customizado para o Fedora RYnux) permitirá selecionar o idioma/teclado e realizar o particionamento dos discos (com suporte nativo a BTRFS) para a instalação offline do sistema base. No primeiro boot, o assistente do KDE Plasma (*Plasma Setup*) assumirá o controle para a criação do seu usuário, fuso horário e configuração de rede.
 
 ## 🔄 Atualizações
 
@@ -35,5 +35,12 @@ O Fedora RYnux entrega um sistema base limpo e imutável. Para instalar ferramen
 
 👉 **[Consulte o Guia de Pós-instalação na pasta `/setup`](./setup/README.md)** para personalizar o seu ambiente de forma automatizada.
 
+## 🙏 Agradecimentos
+
+Este projeto só é possível graças ao trabalho excepcional da comunidade de código aberto:
+
+* **Time do [Fedora Project](https://fedoraproject.org/):** Pela excelência contínua na engenharia da distribuição, empacotamento impecável e integração de ponta com o KDE Plasma e o Anaconda WebUI.
+* **Desenvolvedores do [bootc](https://github.com/bootc-dev/bootc) e [osbuild / image-builder](https://github.com/osbuild/image-builder-cli):** Por revolucionarem a arquitetura de sistemas operacionais Linux imutáveis baseados em contêineres OCI.
+* **Fernando Fedora ([Ferlinuxdebian](https://github.com/Ferlinuxdebian)):** Pelo excelente trabalho e divulgação de conteúdos relacionados ao bootc na comunidade brasileira do Fedora Linux.
 ---
 *Construído com a robustez do Fedora e a flexibilidade das imagens em contêiner.*

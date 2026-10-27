@@ -65,7 +65,7 @@ jobs:
           PAYLOAD_REF="${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }}"
           sudo podman pull "${PAYLOAD_REF}"
 
-      - name: Construir Container do Ambiente de Boot da ISO (TUI)
+      - name: Construir Container do Ambiente de Boot da ISO (Anaconda WebUI)
         run: |
           PAYLOAD_REF="${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }}"
           sudo podman build \
