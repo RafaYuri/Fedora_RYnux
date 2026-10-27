@@ -8,7 +8,7 @@ LABEL containers.bootc="1"
 # Instalando o KDE Desktop com otimização de cache para nuvem
 RUN --mount=type=cache,dst=/var/cache/dnf \
     dnf update -y && \
-    dnf install --setopt=tsflags=nodocs -y @kde-desktop --exclude=kcharselect,krfb,kwrite,akonadi* && \
+    dnf install --setopt=tsflags=nodocs -y @kde-desktop --exclude=kcharselect,plasma-discover-package-kit,krfb,kwrite,akonadi* && \
     dnf clean all
 
 # Copia a pasta de listas de pacotes para dentro da imagem temporariamente
@@ -19,7 +19,7 @@ RUN --mount=type=cache,dst=/var/cache/dnf \
     grep -v '^#' /tmp/pacotes/packages_system.txt | tr '\n' ' ' | xargs dnf install --setopt=tsflags=nodocs -y && \
     grep -v '^#' /tmp/pacotes/packages_dev_cli.txt | tr '\n' ' ' | xargs dnf install --setopt=tsflags=nodocs -y && \
     grep -v '^#' /tmp/pacotes/packages_apps.txt | tr '\n' ' ' | xargs dnf install --setopt=tsflags=nodocs -y && \
-    dnf remove -y PackageKit plasma-browser-integration firewall-config && \
+    dnf remove -y plasma-browser-integration firewall-config && \
     dnf clean all
 
 # Configuração de compressão BTRFS com zstd
@@ -51,7 +51,6 @@ RUN dnf remove -y fedora-flathub-remote && \
 # BRANDING: Ícones do Sistema, Menu Iniciar e KInfoCenter
 # ====================================================================
 COPY branding/icons/ /tmp/branding_icons/
-COPY branding/fedora_rynux.png /tmp/branding_icons/512x512/fedora_rynux_512x512.png
 
 RUN for res in 16 24 32 48 64 128 256 512; do \
         for cat in apps places; do \
