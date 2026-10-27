@@ -19,7 +19,7 @@ RUN --mount=type=cache,dst=/var/cache/dnf \
     grep -v '^#' /tmp/pacotes/packages_system.txt | tr '\n' ' ' | xargs dnf install --setopt=tsflags=nodocs -y && \
     grep -v '^#' /tmp/pacotes/packages_dev_cli.txt | tr '\n' ' ' | xargs dnf install --setopt=tsflags=nodocs -y && \
     grep -v '^#' /tmp/pacotes/packages_apps.txt | tr '\n' ' ' | xargs dnf install --setopt=tsflags=nodocs -y && \
-    dnf remove -y plasma-browser-integration firewall-config && \
+    dnf remove -y PackageKit plasma-browser-integration firewall-config && \
     dnf clean all
 
 # Configuração de compressão BTRFS com zstd
