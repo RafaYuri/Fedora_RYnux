@@ -105,12 +105,24 @@ mkdir -p /usr/share/homebrew/.linuxbrew/{bin,etc,include,lib,opt,sbin,share,var/
 git clone https://github.com/Homebrew/brew /usr/share/homebrew/.linuxbrew/Homebrew
 ln -sf ../Homebrew/bin/brew /usr/share/homebrew/.linuxbrew/bin/brew
 
-# Pré-baixa o Portable Ruby do Homebrew na imagem para uso imediato no primeiro boot
-HOMEBREW_FORCE_VENDOR_RUBY=1 /usr/share/homebrew/.linuxbrew/bin/brew setup-ruby
-/usr/share/homebrew/.linuxbrew/bin/brew --version
+# Pré-baixa o Portable Ruby do Homebrew na imagem para uso imediato no primeiro boot.
+# Nota: Em imagens bootc/OSTree, /root é um symlink para /var/roothome (que não existe
+# durante o build para manter /var vazio). Por isso redirecionamos HOME e HOMEBREW_CACHE
+# temporariamente para /tmp durante o download do Portable Ruby.
+mkdir -p /tmp/homebrew-home /tmp/homebrew-cache /tmp/homebrew-logs /tmp/homebrew-temp
+HOME="/tmp/homebrew-home" \
+HOMEBREW_CACHE="/tmp/homebrew-cache" \
+HOMEBREW_LOGS="/tmp/homebrew-logs" \
+HOMEBREW_TEMP="/tmp/homebrew-temp" \
+HOMEBREW_FORCE_VENDOR_RUBY=1 \
+    /usr/share/homebrew/.linuxbrew/bin/brew setup-ruby
+
+HOME="/tmp/homebrew-home" \
+HOMEBREW_CACHE="/tmp/homebrew-cache" \
+    /usr/share/homebrew/.linuxbrew/bin/brew --version
 
 # Limpa caches temporários gerados durante o setup do Portable Ruby
-rm -rf /root/.cache /tmp/*
+rm -rf /tmp/homebrew-*
 
 echo "⚙️ [20-shell-and-homebrew] Criando serviço de materialização do Homebrew no subvolume /home..."
 cat << 'EOF' > /usr/local/bin/rynux-homebrew-init.sh
