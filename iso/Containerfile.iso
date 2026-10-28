@@ -69,6 +69,7 @@ RUN sed -i 's/NAME="Fedora Linux"/NAME="Fedora RYnux"/' /usr/lib/os-release && \
 
 COPY branding/icons/ /tmp/branding_icons/
 COPY branding/fedora_rynux_plymouth.png /usr/share/plymouth/themes/spinner/watermark.png
+RUN plymouth-set-default-theme bgrt
 
 RUN for res in 16 24 32 48 64 128 256 512; do \
         for cat in apps places; do \
