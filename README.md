@@ -8,7 +8,7 @@ Seu foco principal é fornecer um ambiente "time-proven" e altamente otimizado p
 
 ## 🚀 Características Principais
 
-* **Arquitetura Atômica (Fedora 45):** Baseado no `fedora-bootc:45` com contas de sistema consolidadas em `/usr/lib/{passwd,group}` (`nss-altfiles`). O núcleo do sistema é imutável (somente-leitura), o que significa que atualizações problemáticas não quebram a máquina.
+* **Arquitetura Atômica (Fedora 45):** Baseado no `fedora-bootc:45`. O núcleo do sistema é imutável (somente-leitura), o que significa que atualizações problemáticas não quebram a máquina e se algo de errado acontecer, o sistema pode ser facilmente revertido para um estado anterior.
 * **Shell e Gerenciador de Pacotes Prontos de Fábrica:** Já entrega o **Oh My Bash**, a **notificação automática de atualizações pendentes do `bootc`** no `.bashrc` e o **Homebrew** pré-instalados na imagem do sistema.
 * **Central TUI de Pós-Instalação (`rynux-setup`):** Aplicação interativa de terminal embutida no sistema para instalar suítes de aplicativos Flatpak, fontes da Microsoft e o laboratório Distrobox com poucos cliques, sem precisar baixar scripts manualmente.
 * **Gerenciamento de Energia:** Otimizado nativamente para processadores AMD Ryzen (incluindo o motor `tuned` em vez do tradicional *power-profiles-daemon*).
