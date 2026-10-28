@@ -1,8 +1,9 @@
 #!/bin/bash
 # ==============================================================================
-# Script: 07-flatpaks-configs.sh
+# Script: 05-flatpaks-configs.sh
 # Descrição: Instala utilitários de sistema, monitoramento e gerenciamento
 # ==============================================================================
+set -euo pipefail
 
 echo "🚀 Iniciando a instalação dos utilitários de configuração e monitoramento..."
 

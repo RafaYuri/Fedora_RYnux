@@ -8,7 +8,9 @@ Seu foco principal é fornecer um ambiente "time-proven" e altamente otimizado p
 
 ## 🚀 Características Principais
 
-* **Arquitetura Atômica:** Baseado no `fedora-bootc`. O núcleo do sistema é imutável (somente-leitura), o que significa que atualizações problemáticas não quebram a máquina.
+* **Arquitetura Atômica (Fedora 45):** Baseado no `fedora-bootc:45` com contas de sistema consolidadas em `/usr/lib/{passwd,group}` (`nss-altfiles`). O núcleo do sistema é imutável (somente-leitura), o que significa que atualizações problemáticas não quebram a máquina.
+* **Shell e Gerenciador de Pacotes Prontos de Fábrica:** Já entrega o **Oh My Bash**, a **notificação automática de atualizações pendentes do `bootc`** no `.bashrc` e o **Homebrew** pré-instalados na imagem do sistema.
+* **Central TUI de Pós-Instalação (`rynux-setup`):** Aplicação interativa de terminal embutida no sistema para instalar suítes de aplicativos Flatpak, fontes da Microsoft e o laboratório Distrobox com poucos cliques, sem precisar baixar scripts manualmente.
 * **Gerenciamento de Energia:** Otimizado nativamente para processadores AMD Ryzen (incluindo o motor `tuned` em vez do tradicional *power-profiles-daemon*).
 * **Gráficos e Mídia:** Aceleração de hardware via AMD Radeon nativamente configurada com `mesa-va-drivers` e codecs completos multimídia via RPM Fusion.
 * **Ambiente de Desenvolvimento:**
@@ -29,11 +31,17 @@ A automação deste repositório compila o sistema operacional diariamente. Para
 
 Uma vez instalado, o sistema abandona o gerenciamento de pacotes tradicional. O RYnux se conecta automaticamente ao GitHub Container Registry (GHCR) e faz o download de atualizações de forma silenciosa em segundo plano. Basta reiniciar a máquina para aplicar a versão mais recente, mantendo a integridade do ecossistema.
 
-## 🧰 Pós-instalação e Ambiente de Usuário
+## 🧰 Pós-instalação e Ambiente de Usuário (`rynux-setup`)
 
-O Fedora RYnux entrega um sistema base limpo e imutável. Para instalar ferramentas de produtividade, players de multimídia ou configurar ambientes avançados de desenvolvimento, disponibilizamos scripts modulares de pós-instalação.
+O Fedora RYnux entrega o **Oh My Bash** e o **Homebrew** já configurados por padrão. Para instalar ferramentas adicionais de produtividade, players de multimídia, fontes Microsoft ou configurar o laboratório avançado de desenvolvimento no Distrobox, basta executar no terminal:
 
-👉 **[Consulte o Guia de Pós-instalação na pasta `/setup`](./setup/README.md)** para personalizar o seu ambiente de forma automatizada.
+```bash
+rynux-setup
+```
+
+Ou abrir o aplicativo **"Pós-Instalação do Fedora RYnux"** diretamente pelo menu do KDE Plasma.
+
+👉 **[Consulte o Guia Completo da Central de Pós-instalação na pasta `/setup`](./setup/README.md)** para conhecer todos os módulos disponíveis.
 
 ## 🙏 Agradecimentos
 

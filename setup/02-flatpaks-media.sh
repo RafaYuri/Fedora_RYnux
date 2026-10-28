@@ -1,8 +1,9 @@
 #!/bin/bash
 # ==============================================================================
-# Script: 04-flatpaks-media.sh
+# Script: 02-flatpaks-media.sh
 # Descrição: Instala aplicativos multimídia, edição de imagem e modelagem 3D
 # ==============================================================================
+set -euo pipefail
 
 echo "🚀 Iniciando a instalação das ferramentas multimídia e de design..."
 

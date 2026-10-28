@@ -1,8 +1,9 @@
 #!/bin/bash
 # ==============================================================================
-# Script: 03-flatpaks-dev.sh
+# Script: 01-flatpaks-dev.sh
 # Descrição: Instala ferramentas e IDEs de desenvolvimento via Flatpak
 # ==============================================================================
+set -euo pipefail
 
 echo "🚀 Iniciando a instalação das ferramentas de desenvolvimento..."
 

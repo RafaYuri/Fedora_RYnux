@@ -1,8 +1,9 @@
 #!/bin/bash
 # ==============================================================================
-# Script: 06-flatpaks-academicos.sh
+# Script: 04-flatpaks-academicos.sh
 # Descrição: Instala softwares para computação numérica, simulação e visualização
 # ==============================================================================
+set -euo pipefail
 
 echo "🚀 Iniciando a instalação do pacote acadêmico e de simulação..."
 

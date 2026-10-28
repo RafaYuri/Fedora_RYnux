@@ -1,8 +1,9 @@
 #!/bin/bash
 # ==============================================================================
-# Script: 05-flatpaks-produtividade.sh
+# Script: 03-flatpaks-produtividade.sh
 # Descrição: Instala suítes de escritório, comunicação e utilitários de rede
 # ==============================================================================
+set -euo pipefail
 
 echo "🚀 Iniciando a instalação dos aplicativos de produtividade..."
 

@@ -1,4 +1,4 @@
-ARG FEDORA_VERSION=latest
+ARG FEDORA_VERSION=45
 FROM quay.io/fedora/fedora-bootc:${FEDORA_VERSION}
 
 ARG PAYLOAD_IMAGE=ghcr.io/rafayuri/fedora_rynux:latest

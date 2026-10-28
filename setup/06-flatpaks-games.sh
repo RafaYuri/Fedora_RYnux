@@ -1,8 +1,9 @@
 #!/bin/bash
 # ==============================================================================
-# Script: 08-flatpaks-games.sh
+# Script: 06-flatpaks-games.sh
 # Descrição: Instala jogos casuais e o gerenciador de ambientes Wine (Bottles)
 # ==============================================================================
+set -euo pipefail
 
 echo "🚀 Iniciando a instalação do pacote de entretenimento..."
 

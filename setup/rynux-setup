@@ -1,0 +1,262 @@
+#!/bin/bash
+# ==============================================================================
+# Aplicação: rynux-setup
+# Descrição: Central TUI interativa de Pós-Instalação do Fedora RYnux.
+#            Permite selecionar e executar os scripts modulares embutidos em
+#            /usr/share/rynux/setup sem necessidade de baixá-los do GitHub.
+# ==============================================================================
+set -uo pipefail
+
+# Localiza o diretório de scripts (suporta execução embutida em /usr/share/rynux/setup
+# ou diretamente a partir da pasta setup/ do repositório local)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -d "/usr/share/rynux/setup" ] && [ -f "/usr/share/rynux/setup/01-flatpaks-dev.sh" ]; then
+    SETUP_DIR="/usr/share/rynux/setup"
+elif [ -f "${SCRIPT_DIR}/01-flatpaks-dev.sh" ]; then
+    SETUP_DIR="${SCRIPT_DIR}"
+else
+    echo "❌ Erro: Diretório de scripts (/usr/share/rynux/setup) não encontrado." >&2
+    exit 1
+fi
+
+# Garante que o Homebrew esteja no PATH se já estiver materializado
+if ! command -v brew &> /dev/null && [ -x "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+fi
+
+ALL_SCRIPTS=(
+    "01-flatpaks-dev.sh"
+    "02-flatpaks-media.sh"
+    "03-flatpaks-produtividade.sh"
+    "04-flatpaks-academicos.sh"
+    "05-flatpaks-configs.sh"
+    "06-flatpaks-games.sh"
+    "07-microsoft-fonts.sh"
+    "08-distrobox-dev-env.sh"
+)
+
+declare -A MODULE_TITLES=(
+    ["01-flatpaks-dev.sh"]="💻 [01] Flatpaks de Desenvolvimento (Arduino IDE, Podman Desktop, SerialTest, Kontainer)"
+    ["02-flatpaks-media.sh"]="🎨 [02] Flatpaks de Multimídia e Design (FreeCAD, GIMP, VLC, OBS, Haruna, Upscayl, Draw.io)"
+    ["03-flatpaks-produtividade.sh"]="📄 [03] Flatpaks de Produtividade e Rede (LibreOffice, OnlyOffice, Brave, Telegram, LocalSend, Rclone)"
+    ["04-flatpaks-academicos.sh"]="🔬 [04] Flatpaks Acadêmicos e Simulação (ParaView, Scilab, Octave, wxMaxima)"
+    ["05-flatpaks-configs.sh"]="⚙️ [05] Flatpaks de Configuração e Sistema (Flatseal, Mission Center, Gear Lever, CPU-X, Media Writer)"
+    ["06-flatpaks-games.sh"]="🎮 [06] Flatpaks de Jogos e Wine (Bottles, SuperTuxKart, Space Cadet Pinball)"
+    ["07-microsoft-fonts.sh"]="🔤 [07] Fontes Essenciais da Microsoft via Homebrew (Office, Aptos, Arial, Times New Roman)"
+    ["08-distrobox-dev-env.sh"]="🧪 [08] Laboratório Distrobox 'dev-lab' (C++, Qt6, OpenMPI, Eigen3, FFTW, Gmsh, VS Code, Python)"
+)
+
+show_help() {
+    cat << 'EOF'
+Uso: rynux-setup [OPÇÃO]
+
+Central interativa (TUI) de pós-instalação do Fedora RYnux.
+Sem argumentos, abre a interface gráfica de terminal (via gum).
+
+Opções:
+  -l, --list       Lista todos os módulos disponíveis em /usr/share/rynux/setup
+  -a, --all        Executa todos os módulos sequencialmente sem menu interativo
+  -r, --run NUM    Executa um módulo específico pelo número (ex: rynux-setup --run 01)
+  -h, --help       Exibe esta mensagem de ajuda
+EOF
+}
+
+list_modules() {
+    echo "📦 Módulos disponíveis em ${SETUP_DIR}:"
+    for s in "${ALL_SCRIPTS[@]}"; do
+        echo "  • ${s} -> ${MODULE_TITLES[$s]}"
+    done
+}
+
+run_selected_scripts() {
+    local scripts_to_run=("$@")
+    local total="${#scripts_to_run[@]}"
+    local current=0
+    local failed=()
+
+    for script_name in "${scripts_to_run[@]}"; do
+        current=$((current + 1))
+        local script_path="${SETUP_DIR}/${script_name}"
+        echo ""
+        if command -v gum &> /dev/null; then
+            gum style \
+                --border rounded \
+                --border-foreground 39 \
+                --foreground 255 \
+                --padding "0 2" \
+                "▶️  (${current}/${total}) Executando: ${MODULE_TITLES[$script_name]:-$script_name}"
+        else
+            echo "======================================================================"
+            echo "▶️  (${current}/${total}) Executando: ${MODULE_TITLES[$script_name]:-$script_name}"
+            echo "======================================================================"
+        fi
+
+        if bash "$script_path"; then
+            echo -e "\e[1;32m✔ Módulo ${script_name} finalizado com sucesso!\e[0m"
+        else
+            echo -e "\e[1;31m✖ Ocorreu um erro ao executar ${script_name}.\e[0m"
+            failed+=("$script_name")
+        fi
+    done
+
+    echo ""
+    if [ "${#failed[@]}" -eq 0 ]; then
+        if command -v gum &> /dev/null; then
+            gum style \
+                --border double \
+                --border-foreground 46 \
+                --foreground 46 \
+                --padding "0 2" \
+                "🎉 Todos os ${total} módulo(s) selecionados foram concluídos com sucesso!"
+        else
+            echo "🎉 Todos os ${total} módulo(s) selecionados foram concluídos com sucesso!"
+        fi
+    else
+        echo -e "\e[1;33m⚠️ Concluído com falhas nos seguintes módulos: ${failed[*]}\e[0m"
+        return 1
+    fi
+}
+
+# Tratamento de argumentos de linha de comando (modo não-interativo/rápido)
+if [ $# -gt 0 ]; then
+    case "$1" in
+        -h|--help)
+            show_help
+            exit 0
+            ;;
+        -l|--list)
+            list_modules
+            exit 0
+            ;;
+        -a|--all)
+            run_selected_scripts "${ALL_SCRIPTS[@]}"
+            exit $?
+            ;;
+        -r|--run)
+            if [ -z "${2:-}" ]; then
+                echo "❌ Informe o número ou nome do módulo (ex: rynux-setup --run 01)." >&2
+                exit 1
+            fi
+            target=""
+            for s in "${ALL_SCRIPTS[@]}"; do
+                if [[ "$s" == "${2}"* ]] || [[ "$s" == "0${2}-"* ]]; then
+                    target="$s"
+                    break
+                fi
+            done
+            if [ -z "$target" ]; then
+                echo "❌ Módulo '${2}' não encontrado." >&2
+                exit 1
+            fi
+            run_selected_scripts "$target"
+            exit $?
+            ;;
+        *)
+            echo "❌ Opção desconhecida: $1" >&2
+            show_help
+            exit 1
+            ;;
+    esac
+fi
+
+# Modo TUI Interativo
+while true; do
+    clear
+    if command -v gum &> /dev/null; then
+        gum style \
+            --border double \
+            --border-foreground 39 \
+            --foreground 255 \
+            --align center \
+            --width 88 \
+            --margin "1 0" \
+            --padding "1 2" \
+            "🦏 FEDORA RYnux — CENTRAL DE PÓS-INSTALAÇÃO" \
+            "Oh My Bash, Homebrew e Notificações já vêm ativos por padrão na imagem!" \
+            "Selecione abaixo os módulos opcionais que deseja instalar no espaço do usuário:"
+
+        MENU_ITEMS=(
+            "🌟 Instalar TODOS os módulos abaixo|ALL"
+        )
+        for s in "${ALL_SCRIPTS[@]}"; do
+            MENU_ITEMS+=("${MODULE_TITLES[$s]}|${s}")
+        done
+        MENU_ITEMS+=("🚪 Sair|EXIT")
+
+        SELECTIONS="$(gum choose \
+            --no-limit \
+            --ordered \
+            --height 12 \
+            --label-delimiter="|" \
+            --header="Use ↑/↓ para navegar, ESPAÇO (ou X) para marcar/desmarcar e ENTER para confirmar:" \
+            --cursor.foreground="39" \
+            --header.foreground="117" \
+            --selected.foreground="46" \
+            "${MENU_ITEMS[@]}")" || exit 0
+
+        if [ -z "$SELECTIONS" ]; then
+            echo "ℹ️ Nenhum módulo selecionado. Saindo..."
+            exit 0
+        fi
+
+        # Verifica se o usuário escolheu sair ou instalar todos
+        if echo "$SELECTIONS" | grep -qx "EXIT"; then
+            echo "👋 Até logo!"
+            exit 0
+        fi
+
+        SCRIPTS_TO_RUN=()
+        if echo "$SELECTIONS" | grep -qx "ALL"; then
+            SCRIPTS_TO_RUN=("${ALL_SCRIPTS[@]}")
+        else
+            while IFS= read -r line; do
+                [ -n "$line" ] && SCRIPTS_TO_RUN+=("$line")
+            done <<< "$SELECTIONS"
+        fi
+
+        echo ""
+        echo "📋 Módulos selecionados para execução (${#SCRIPTS_TO_RUN[@]}):"
+        for s in "${SCRIPTS_TO_RUN[@]}"; do
+            echo "  • ${MODULE_TITLES[$s]}"
+        done
+        echo ""
+
+        if gum confirm --affirmative="Sim, iniciar instalação" --negative="Voltar ao menu" "Deseja iniciar a execução dos módulos selecionados?"; then
+            run_selected_scripts "${SCRIPTS_TO_RUN[@]}"
+            echo ""
+            if ! gum confirm --affirmative="Voltar ao menu principal" --negative="Sair" "O que deseja fazer agora?"; then
+                echo "👋 Pós-instalação finalizada!"
+                exit 0
+            fi
+        fi
+    else
+        # Fallback caso gum não esteja disponível
+        echo "======================================================================"
+        echo "       🦏 FEDORA RYnux — CENTRAL DE PÓS-INSTALAÇÃO"
+        echo "======================================================================"
+        echo "  0) 🌟 Instalar TODOS os módulos"
+        i=1
+        for s in "${ALL_SCRIPTS[@]}"; do
+            echo "  ${i}) ${MODULE_TITLES[$s]}"
+            i=$((i + 1))
+        done
+        echo "  q) 🚪 Sair"
+        echo "----------------------------------------------------------------------"
+        read -rp "Digite os números desejados separados por espaço (ex: 1 3 7) ou 'q' para sair: " choices
+        [[ "$choices" == "q" || "$choices" == "Q" || -z "$choices" ]] && exit 0
+        SCRIPTS_TO_RUN=()
+        for c in $choices; do
+            if [ "$c" = "0" ]; then
+                SCRIPTS_TO_RUN=("${ALL_SCRIPTS[@]}")
+                break
+            elif [[ "$c" =~ ^[1-8]$ ]]; then
+                idx=$((c - 1))
+                SCRIPTS_TO_RUN+=("${ALL_SCRIPTS[$idx]}")
+            fi
+        done
+        if [ "${#SCRIPTS_TO_RUN[@]}" -gt 0 ]; then
+            run_selected_scripts "${SCRIPTS_TO_RUN[@]}"
+            read -rp "Pressione ENTER para voltar ao menu ou Ctrl+C para sair..." _
+        fi
+    fi
+done

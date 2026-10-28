@@ -1,15 +1,27 @@
 #!/bin/bash
 # ==============================================================================
-# Script: 09-microsoft-fonts.sh
+# Script: 07-microsoft-fonts.sh
 # Descrição: Instala fontes essenciais da Microsoft via Homebrew
 # ==============================================================================
+set -euo pipefail
 
 echo "🚀 Preparando a instalação de fontes da Microsoft..."
 
-# 1. Verificação de dependência: Homebrew
+# 1. Garante que o Homebrew esteja carregado no PATH (caso executado via atalho .desktop)
 if ! command -v brew &> /dev/null; then
-    echo "❌ Erro: O Homebrew não foi encontrado no seu PATH."
-    echo "⚠️  Por favor, execute primeiro o script '02-homebrew.sh' para configurar o gerenciador."
+    if [ -x "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
+        eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+    elif [ -x "$HOME/.linuxbrew/bin/brew" ]; then
+        eval "$("$HOME/.linuxbrew/bin/brew" shellenv)"
+    elif [ -x "/usr/local/bin/rynux-homebrew-init.sh" ]; then
+        echo "⚙️ Inicializando o diretório do Homebrew em /home/linuxbrew..."
+        sudo /usr/local/bin/rynux-homebrew-init.sh
+        eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+    fi
+fi
+
+if ! command -v brew &> /dev/null; then
+    echo "❌ Erro: O Homebrew não foi encontrado no sistema."
     exit 1
 fi
 
