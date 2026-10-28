@@ -175,20 +175,20 @@ while true; do
             "Oh My Bash, Homebrew e Notificações já vêm ativos por padrão na imagem!" \
             "Selecione abaixo os módulos opcionais que deseja instalar no espaço do usuário:"
 
+        # 1. Monta as opções na ordem exata desejada (apenas os textos que serão exibidos)
         MENU_ITEMS=(
-            "🌟 Instalar TODOS os módulos abaixo|ALL"
+            "🌟 Instalar TODOS os módulos abaixo"
         )
         for s in "${ALL_SCRIPTS[@]}"; do
-            MENU_ITEMS+=("${MODULE_TITLES[$s]}|${s}")
+            MENU_ITEMS+=("${MODULE_TITLES[$s]}")
         done
-        MENU_ITEMS+=("🚪 Sair|EXIT")
+        MENU_ITEMS+=("🚪 Sair")
 
+        # 2. Chama o gum choose sem label-delimiter (garante a preservação da ordem)
         SELECTIONS="$(gum choose \
             --no-limit \
-            --ordered \
             --height 12 \
-            --label-delimiter="|" \
-            --header="Use ↑/↓ para navegar, ESPAÇO (ou X) para marcar/desmarcar e ENTER para confirmar:" \
+            --header="Use ↑/↓ para navegar,X para marcar/desmarcar e ENTER para confirmar:" \
             --cursor.foreground="39" \
             --header.foreground="117" \
             --selected.foreground="46" \
@@ -199,19 +199,23 @@ while true; do
             exit 0
         fi
 
-        # Verifica se o usuário escolheu sair ou instalar todos
-        if echo "$SELECTIONS" | grep -qx "EXIT"; then
+        # 3. Trata saída
+        if echo "$SELECTIONS" | grep -qx "🚪 Sair"; then
             echo "👋 Até logo!"
             exit 0
         fi
 
+        # 4. Processa a seleção convertendo os títulos de volta para o nome do script
         SCRIPTS_TO_RUN=()
-        if echo "$SELECTIONS" | grep -qx "ALL"; then
+        if echo "$SELECTIONS" | grep -qx "🌟 Instalar TODOS os módulos abaixo"; then
             SCRIPTS_TO_RUN=("${ALL_SCRIPTS[@]}")
         else
-            while IFS= read -r line; do
-                [ -n "$line" ] && SCRIPTS_TO_RUN+=("$line")
-            done <<< "$SELECTIONS"
+            for s in "${ALL_SCRIPTS[@]}"; do
+                title="${MODULE_TITLES[$s]}"
+                if echo "$SELECTIONS" | grep -Fxq "$title"; then
+                    SCRIPTS_TO_RUN+=("$s")
+                fi
+            done
         fi
 
         echo ""
