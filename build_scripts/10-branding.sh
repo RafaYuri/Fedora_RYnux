@@ -50,6 +50,7 @@ echo "🏷️ [10-branding] Configurando identidade em /usr/lib/os-release..."
 sed -i 's/NAME="Fedora Linux"/NAME="Fedora RYnux"/' /usr/lib/os-release
 sed -i 's/^PRETTY_NAME=.*/PRETTY_NAME="Fedora RYnux"/' /usr/lib/os-release
 sed -i 's|^LOGO=.*|LOGO="fedora_rynux"|' /usr/lib/os-release
+sed -i 's|^DEFAULT_HOSTNAME=.*|DEFAULT_HOSTNAME="fedora-rynux"|' /usr/lib/os-release
 sed -i 's|^HOME_URL=.*|HOME_URL="https://github.com/RafaYuri/Fedora_RYnux"|' /usr/lib/os-release
 sed -i 's|^DOCUMENTATION_URL=.*|DOCUMENTATION_URL="https://github.com/RafaYuri/Fedora_RYnux"|' /usr/lib/os-release
 sed -i 's|^SUPPORT_URL=.*|SUPPORT_URL="https://github.com/RafaYuri/Fedora_RYnux/issues"|' /usr/lib/os-release
