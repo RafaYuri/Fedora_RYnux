@@ -1,0 +1,20 @@
+// =============================================================================
+// Regra Polkit para o Bootc KCM do Fedora RYnux
+// - Leitura de status (.status) e verificação de atualizações (.check):
+//   Permitidas sem pedir senha para qualquer usuário humano em sessão local ativa.
+// - Download/stage de atualização (.upgrade):
+//   Permitido sem senha para membros do grupo 'wheel' em sessão local ativa
+//   (mesmo comportamento padrão do Discover/rpm-ostree no Fedora Desktop).
+// =============================================================================
+polkit.addRule(function(action, subject) {
+    if ((action.id == "org.fedoraproject.rynux.bootc.status" ||
+         action.id == "org.fedoraproject.rynux.bootc.check") &&
+        subject.active && subject.local) {
+        return polkit.Result.YES;
+    }
+
+    if (action.id == "org.fedoraproject.rynux.bootc.upgrade" &&
+        subject.active && subject.local && subject.isInGroup("wheel")) {
+        return polkit.Result.YES;
+    }
+});

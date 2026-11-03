@@ -1,0 +1,45 @@
+[Domain]
+Name=Fedora RYnux Bootc Manager
+Name[pt_BR]=Gerenciador de Imagem Bootc do Fedora RYnux
+Icon=fedora_rynux
+URL=https://github.com/RafaYuri/Fedora_RYnux
+
+[org.fedoraproject.rynux.bootc.status]
+Name=Read bootc system image status
+Name[pt_BR]=Ler o status da imagem do sistema bootc
+Description=Query current booted, staged, and rollback container images
+Description[pt_BR]=Consultar imagens de container ativa (booted), preparada (staged) e de reversão (rollback)
+Policy=yes
+PolicyInactive=no
+
+[org.fedoraproject.rynux.bootc.check]
+Name=Check for bootc image updates
+Name[pt_BR]=Verificar atualizações da imagem bootc
+Description=Check remote container registry for new system image versions
+Description[pt_BR]=Verificar no registro remoto se há novas versões da imagem do sistema
+Policy=yes
+PolicyInactive=no
+
+[org.fedoraproject.rynux.bootc.upgrade]
+Name=Download and stage bootc system update
+Name[pt_BR]=Baixar e preparar atualização do sistema bootc
+Description=Authentication is required to download and stage a new system image
+Description[pt_BR]=Autenticação é necessária para baixar e preparar uma nova imagem do sistema
+Policy=auth_admin
+Persistence=session
+
+[org.fedoraproject.rynux.bootc.rollback]
+Name=Rollback bootc system image
+Name[pt_BR]=Reverter imagem do sistema bootc (Rollback)
+Description=Authentication is required to queue a rollback to the previous deployment
+Description[pt_BR]=Autenticação é necessária para agendar a reversão ao deployment anterior
+Policy=auth_admin
+Persistence=session
+
+[org.fedoraproject.rynux.bootc.toggleautotimer]
+Name=Configure automatic bootc updates
+Name[pt_BR]=Configurar atualizações automáticas do bootc
+Description=Authentication is required to enable or disable the automatic bootc update timer
+Description[pt_BR]=Autenticação é necessária para ativar ou desativar o timer de atualização automática do bootc
+Policy=auth_admin
+Persistence=session

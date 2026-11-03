@@ -1,0 +1,9 @@
+[Unit]
+Description=Fedora RYnux - Monitoramento Daemonless de Reboot Pendente do Bootc (/run/reboot-required)
+Documentation=https://github.com/RafaYuri/Fedora_RYnux
+
+[Path]
+PathExists=/run/reboot-required
+
+[Install]
+WantedBy=graphical-session.target default.target

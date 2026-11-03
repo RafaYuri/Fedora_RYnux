@@ -1,5 +1,7 @@
-# .gitignore
+.gitignore
 bootiso/
 manifest-iso.json
 cosign.key
 *.ociarchive
+Bootc KCM/build/
+Bootc KCM/.installed_files.manifest

@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+NoDisplay=true
+X-KDE-AliasFor=systemsettings
+Exec=systemsettings kcm_bootc
+Icon=fedora_rynux
+Name=System Image (bootc)
+Name[pt_BR]=Imagem do Sistema (bootc)
+Comment=Monitor system container image status, updates, and atomic rollback via bootc
+Comment[pt_BR]=Monitore o status da imagem do sistema, atualizações e rollback atômico via bootc
+Keywords=bootc;ostree;update;upgrade;rollback;image;container;atomic;immutable;rynux;fedora;
+Keywords[pt_BR]=bootc;ostree;atualização;atualizar;reverter;rollback;imagem;container;atômico;imutável;rynux;fedora;
+Categories=Qt;KDE;X-KDE-settings-system-administration;
