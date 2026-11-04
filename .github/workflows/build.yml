@@ -72,15 +72,23 @@ jobs:
             -f Containerfile \
             .
 
-      - name: Rechunk via bootc-base-imagectl
+      - name: Rechunk via bootc-base-imagectl (Chunkah)
         run: |
           PRIMARY_IMAGE="${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }}"
-          sudo podman run --rm --privileged \
-            -v /var/lib/containers:/var/lib/containers \
+          CONFIG_STR="$(sudo podman inspect localhost/bootc-raw:latest)"
+          LOAD_OUT="$(sudo podman run --rm --privileged \
+            --mount=type=image,src=localhost/bootc-raw:latest,dst=/chunkah \
+            -v /var/tmp:/var/tmp \
+            -e CHUNKAH_CONFIG_STR="${CONFIG_STR}" \
             quay.io/fedora/fedora-bootc:45 \
             /usr/libexec/bootc-base-imagectl rechunk \
-            --max-layers 127 localhost/bootc-raw:latest \
-            "${PRIMARY_IMAGE}"
+            --chunkah --max-layers 127 \
+            | sudo podman load)"
+          echo "${LOAD_OUT}"
+          LOADED_IMAGE="${LOAD_OUT#Loaded image: }"
+          LOADED_IMAGE="${LOADED_IMAGE#Loaded image(s): }"
+          sudo podman tag "${LOADED_IMAGE}" "${PRIMARY_IMAGE}"
+          sudo podman rmi localhost/bootc-raw:latest
 
       - name: Login no GHCR (Podman)
         if: github.event_name != 'pull_request'
