@@ -1,20 +1,12 @@
 #!/bin/bash
 # ==============================================================================
 # Script: 20-shell-and-homebrew.sh
-# Descrição: Incorpora o Oh My Bash, a notificação de atualização do bootc e o
-#            Homebrew nativamente na imagem do sistema, configurando /etc/skel
-#            e o serviço de provisionamento automático em /home/linuxbrew.
+# Descrição: Incorpora o Oh My Bash e o Homebrew nativamente na imagem do sistema,
+#            configurando /etc/skel e o serviço de provisionamento automático em
+#            /home/linuxbrew. A notificação de atualização do bootc é fornecida
+#            globalmente pelo módulo bootc-kcm em /etc/profile.d/bootc-notify.sh.
 # ==============================================================================
 set -euo pipefail
-
-echo "🔔 [20-shell-and-homebrew] Instalando script de notificação de reboot (bootc-notify.sh)..."
-cat << 'EOF' > /usr/local/bin/bootc-notify.sh
-#!/bin/bash
-if [ -f /run/reboot-required ]; then
-    echo -e "\e[1;36m🔄 Atualização pendente, reinicie para aplicação.\e[0m"
-fi
-EOF
-chmod +x /usr/local/bin/bootc-notify.sh
 
 echo "🐚 [20-shell-and-homebrew] Instalando Oh My Bash em /usr/share/oh-my-bash..."
 rm -rf /usr/share/oh-my-bash
@@ -25,6 +17,11 @@ echo "📝 [20-shell-and-homebrew] Configurando /etc/skel/.bashrc e /etc/skel/.b
 mkdir -p /etc/skel
 
 cat << 'EOF' > /etc/skel/.bashrc
+# Source global definitions (carrega /etc/bashrc e /etc/profile.d/*.sh, incluindo bootc-notify)
+if [ -f /etc/bashrc ]; then
+  . /etc/bashrc
+fi
+
 # Enable the subsequent settings only in interactive sessions
 case $- in
   *i*) ;;
@@ -78,9 +75,6 @@ case ":$PATH:" in
   *":$HOME/.local/bin:"*) ;;
   *) export PATH="$HOME/.local/bin:$PATH" ;;
 esac
-
-# Notificação de atualização pendente do bootc
-[ -f /usr/local/bin/bootc-notify.sh ] && /usr/local/bin/bootc-notify.sh
 EOF
 
 cat << 'EOF' > /etc/skel/.bash_profile
@@ -187,4 +181,4 @@ WantedBy=multi-user.target
 EOF
 
 systemctl enable rynux-homebrew-init.service
-echo "✅ [20-shell-and-homebrew] Oh My Bash, bootc-notify e Homebrew configurados com sucesso."
+echo "✅ [20-shell-and-homebrew] Oh My Bash e Homebrew configurados com sucesso."

@@ -9,7 +9,8 @@ Seu foco principal é fornecer um ambiente "time-proven" e altamente otimizado p
 ## 🚀 Características Principais
 
 * **Arquitetura Atômica (Fedora 45):** Baseado no `fedora-bootc:45`. O núcleo do sistema é imutável (somente-leitura), o que significa que atualizações problemáticas não quebram a máquina e se algo de errado acontecer, o sistema pode ser facilmente revertido para um estado anterior.
-* **Shell e Gerenciador de Pacotes Prontos de Fábrica:** Já entrega o **Oh My Bash**, a **notificação automática de atualizações pendentes do `bootc`** no `.bashrc` e o **Homebrew** pré-instalados na imagem do sistema.
+* **Gestão Visual da Imagem do Sistema:** Integração nativa do [Bootc KCM](https://github.com/RafaYuri/bootc-kcm) nas Configurações do Sistema do KDE Plasma, permitindo consultar a versão ativa, verificar atualizações remotas, agendar reversões atômicas (*rollback*) e receber notificações quando uma nova imagem estiver pronta (*staged*).
+* **Shell e Gerenciador de Pacotes Prontos de Fábrica:** Já entrega o **Oh My Bash**, notificações de atualizações pendentes no terminal e o **Homebrew** pré-instalados na imagem do sistema.
 * **Central TUI de Pós-Instalação (`rynux-setup`):** Aplicação interativa de terminal embutida no sistema para instalar suítes de aplicativos Flatpak, fontes da Microsoft e o laboratório Distrobox com poucos cliques, sem precisar baixar scripts manualmente.
 * **Gerenciamento de Energia:** Otimizado nativamente para processadores AMD Ryzen (incluindo o motor `tuned` em vez do tradicional *power-profiles-daemon*).
 * **Gráficos e Mídia:** Aceleração de hardware via AMD Radeon nativamente configurada com `mesa-va-drivers` e codecs completos multimídia via RPM Fusion.
@@ -29,7 +30,7 @@ A automação deste repositório compila o sistema operacional diariamente. Para
 
 ## 🔄 Atualizações
 
-Uma vez instalado, o sistema abandona o gerenciamento de pacotes tradicional. O RYnux se conecta automaticamente ao GitHub Container Registry (GHCR) e faz o download de atualizações de forma silenciosa em segundo plano. Basta reiniciar a máquina para aplicar a versão mais recente, mantendo a integridade do ecossistema.
+Uma vez instalado, o sistema abandona o gerenciamento de pacotes tradicional. O RYnux se conecta automaticamente ao GitHub Container Registry (GHCR) e faz o download de atualizações de forma silenciosa em segundo plano sem reiniciar a máquina (mantendo a nova versão em estado *staged*). Notificações são exibidas no KDE Plasma e no terminal informando quando o sistema está pronto para ser reiniciado, ou o usuário pode gerenciar o estado da imagem diretamente pelo painel **"Imagem do Sistema (bootc)"** nas Configurações do Sistema.
 
 ## 🧰 Pós-instalação e Ambiente de Usuário (`rynux-setup`)
 

@@ -1,9 +1,0 @@
-[Unit]
-Description=Fedora RYnux - Notificação Gráfica de Atualização Staged do Bootc
-Documentation=https://github.com/RafaYuri/Fedora_RYnux
-ConditionPathExists=/run/reboot-required
-
-[Service]
-Type=oneshot
-ExecStart=/usr/bin/rynux-bootc-desktop-notify.sh
-RemainAfterExit=yes

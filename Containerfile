@@ -3,14 +3,12 @@
 # ====================================================================
 FROM quay.io/fedora/fedora-bootc:45 AS kcm-builder
 
-COPY ["Bootc KCM/", "/tmp/bootc-kcm/"]
-
 RUN --mount=type=cache,dst=/var/cache/dnf \
-    rm -rf /tmp/bootc-kcm/build && \
     dnf install --setopt=tsflags=nodocs -y \
-        cmake extra-cmake-modules gcc-c++ ninja-build gettext \
+        git cmake extra-cmake-modules gcc-c++ ninja-build gettext \
         qt6-qtbase-devel qt6-qtdeclarative-devel \
         kf6-kcoreaddons-devel kf6-ki18n-devel kf6-kcmutils-devel kf6-kauth-devel && \
+    git clone --depth=1 https://github.com/RafaYuri/bootc-kcm.git /tmp/bootc-kcm && \
     cmake -B /tmp/bootc-kcm/build -S /tmp/bootc-kcm \
         -DCMAKE_INSTALL_PREFIX=/usr \
         -DCMAKE_BUILD_TYPE=Release \
@@ -67,15 +65,13 @@ RUN dnf remove -y fedora-flathub-remote && \
     curl --retry 3 -Lo /etc/flatpak/remotes.d/flathub.flatpakrepo https://dl.flathub.org/repo/flathub.flatpakrepo && \
     rm -f /usr/lib/systemd/system/flatpak-add-fedora-repos.service
 
-# Correção para impedir reboots automáticos do bootc e abertura do firewall para KDE Connect
-RUN mkdir -p /etc/systemd/system/bootc-fetch-apply-updates.service.d/ && \
-    printf '[Service]\nExecStart=\nExecStart=/usr/bin/bootc upgrade --quiet\n' \
-    > /etc/systemd/system/bootc-fetch-apply-updates.service.d/override.conf && \
-    firewall-offline-cmd --add-service=kdeconnect
+# Abertura do firewall para KDE Connect
+RUN firewall-offline-cmd --add-service=kdeconnect
 
-# Integração do módulo Bootc KCM (System Settings + KAuth + Notificação Gráfica Daemonless)
+# Integração do módulo Bootc KCM (System Settings + KAuth + Notificações Daemonless e CLI)
 COPY --from=kcm-builder /tmp/kcm-install/usr/ /usr/
-RUN systemctl --global enable rynux-bootc-reboot-notify.path
+COPY --from=kcm-builder /tmp/kcm-install/etc/ /etc/
+RUN systemctl --global enable bootc-reboot-notify.path
 
 # ====================================================================
 # CONFIGURAÇÃO MODULAR VIA SHELL SCRIPTS (build_scripts/)
