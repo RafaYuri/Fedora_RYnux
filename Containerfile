@@ -97,5 +97,10 @@ RUN kver="$(rpm -q kernel-core --queryformat '%{VERSION}-%{RELEASE}.%{ARCH}\n' |
     dnf clean all && \
     rm -rf /var/cache/dnf /var/lib/dnf /var/log/* /tmp/* /var/tmp/*
 
+# Garante daemon-reload caso o bootc-fstab-edit modifique /etc/fstab no boot
+RUN mkdir -p /usr/lib/systemd/system/bootc-fstab-edit.service.d && \
+    printf '[Service]\nExecStartPost=/usr/bin/sh -c "[ /etc/fstab -nt /run/systemd/generator ] && /usr/bin/systemctl daemon-reload || true"\n' \
+    > /usr/lib/systemd/system/bootc-fstab-edit.service.d/reload-daemon.conf
+
 # LINTING: Verifica integridade da imagem para bootc/OSTree
 RUN bootc container lint
