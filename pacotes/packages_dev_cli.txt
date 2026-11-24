@@ -10,19 +10,8 @@ eza
 procps-ng
 file
 
-# Ferramentas de Compilação, C++ e HPC
-gcc-c++
-clang
-cmake
-ninja-build
-gdb
-clang
-libgomp
-libomp-devel
-
 # Ecossistema de Contêineres
 podman
 podman-compose
 podman-docker
 distrobox
-toolbox

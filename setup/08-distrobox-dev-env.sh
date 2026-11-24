@@ -6,7 +6,7 @@
 set -euo pipefail
 
 CONTAINER_NAME="dev-lab"
-IMAGE="quay.io/fedora/fedora:latest"
+IMAGE="quay.io/fedora/fedora:45"
 
 echo "🚀 Iniciando a criação do laboratório de alta performance: $CONTAINER_NAME..."
 

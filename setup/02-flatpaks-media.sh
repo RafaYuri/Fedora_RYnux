@@ -15,6 +15,7 @@ FLATPAKS_MEDIA=(
     "org.kde.kcolorchooser"           # Seletor de cores rápido do ecossistema KDE
     "org.gimp.GIMP"                   # Edição avançada de imagens
     "org.kde.kolourpaint"             # Edição simples e rápida (estilo MS Paint)
+    "org.kde.gwenview"                # Visualizador de imagens do ecossistema KDE
     "io.github.cosmic_utils.camera"   # Aplicativo minimalista de câmera
     "org.kde.haruna"                  # Reprodutor de vídeo fluido e moderno do KDE
     "org.videolan.VLC"                # O clássico reprodutor multimídia universal

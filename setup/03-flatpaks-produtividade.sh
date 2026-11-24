@@ -12,6 +12,7 @@ FLATPAKS_PROD=(
     "org.libreoffice.LibreOffice"                 # Suíte office robusta (excelente para dados/calc)
     "org.onlyoffice.desktopeditors"               # Alta compatibilidade com formatos MS Office
     "com.github.johnfactotum.Foliate"             # Leitor de e-books e PDFs moderno
+    "org.kde.okular"                              # Visualizador de documentos e PDFs do KDE
     "io.github.zarestia_dev.rclone-manager"       # Gerenciador gráfico para o Rclone (Nuvem)
     "org.kde.kclock"                              # Relógio, alarmes e timers do ecossistema KDE
     "org.telegram.desktop"                        # Mensageiro instantâneo
@@ -19,6 +20,7 @@ FLATPAKS_PROD=(
     "io.github.mhogomchungu.media-downloader"     # Download de mídias e vídeos
     "org.localsend.localsend_app"                 # Transferência de arquivos via rede local (AirDrop open-source)
     "com.brave.Browser"                           # Navegador de internet Brave
+    "org.mozilla.firefox"                         # Navegador de internet Firefox
 )
 
 echo "📦 Baixando pacotes. Origem forçada: repositório 'flathub'..."

@@ -7,15 +7,11 @@ mesa-vulkan-drivers
 mesa-va-drivers
 mesa-libGL
 
-# Firmware e Drivers Gráficos Universais (AMD e Intel)
+# Firmware e Drivers Gráficos (AMD)
 amd-gpu-firmware
-intel-gpu-firmware
-libva-intel-media-driver
 linux-firmware
 
 # Firmwares de Rede (Wi-Fi)
-iwlwifi-mvm-firmware
-iwlwifi-mld-firmware
 realtek-firmware
 
 # Utilitários de Sistema e Segurança
@@ -38,7 +34,6 @@ gvfs
 gvfs-fuse
 icoutils
 ifuse
-igt-gpu-tools
 iwd
 just
 krb5-workstation
