@@ -45,6 +45,11 @@ COPY config/01-args.toml /tmp/sysconfig/
 RUN mv -v /tmp/sysconfig/01-args.toml /usr/lib/bootc/kargs.d/01-args.toml && \
     rm -rf /tmp/*
 
+# Configuração de verificação de assinatura Cosign/Sigstore para atualizações do bootc
+COPY cosign.pub /etc/pki/containers/fedora_rynux.pub
+COPY config/containers/policy.json /etc/containers/policy.json
+COPY config/containers/registries.d/fedora_rynux.yaml /etc/containers/registries.d/fedora_rynux.yaml
+
 # Instalando repositórios RPM Fusion, codecs multimídia e removendo o repositório
 RUN --mount=type=cache,dst=/var/cache/dnf \
     dnf install --setopt=tsflags=nodocs -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \

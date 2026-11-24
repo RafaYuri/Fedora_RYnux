@@ -137,7 +137,7 @@ lang pt_BR.UTF-8
 keyboard --vckeymap=br-abnt2 --xlayouts='br'
 timezone America/Sao_Paulo --utc
 rootpw --lock
-bootc --source-imgref containers-storage:${PAYLOAD_IMAGE} --target-imgref ${PAYLOAD_IMAGE}
+bootc --source-imgref containers-storage:${PAYLOAD_IMAGE} --target-imgref ${PAYLOAD_IMAGE} --enforce-container-sigpolicy
 EOF
 
 # Garante que o módulo bootc do Anaconda não exija conexão de rede para instalação offline
